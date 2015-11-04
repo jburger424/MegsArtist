@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Jon's Music{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Hello Artists!</h1>
+    <ul>
+        {% for artistName in artistNames|sort%}
+
+            <a href="{{ artistName }}"> <li>{{ artistName }}</li></a>
+        {% endfor %}
+    <b><a href="/artists/add/"><li>Add Artist</li></a></b>
+    </ul>
+
+</div>
+
+
+{% endblock %}

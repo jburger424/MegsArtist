@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Jon's Music{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    {% if artistName == "null" %}
+    <h1>Sorry, we have no record of them.</h1>
+    {% else %}
+        <div class="container">
+  <div class="jumbotron">
+      <div class="row">
+          <div class="col-md-8">
+              <div class="row">
+                  <h1>{{ artistName }}</h1>
+              </div>
+              <div class="row">
+                  <h3>{{ artistDescription }}</h3>
+              </div>
+          </div>
+          <div class="col-md-4">
+              {% if artistImageURL%}
+              <img src={{ artistImageURL }} class="artist-image img-circle img-responsive">
+              {% endif %}
+
+          </div>
+      </div>
+    <br>
+
+      <br><br>
+  {% if songURL|length > 3 %}
+      <div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title text-center">
+        {% if songName|length > 0 %}
+        {{ songName }}
+        {% else %}
+            Unknown Song
+            {% endif %}
+        - {{ artistName }}</h3>
+  </div>
+  <div class="panel-body">
+          <audio controls autoplay>
+  <source src={{ songURL }} type="audio/mpeg">
+      </audio>
+  </div>
+</div>
+  {% endif %}
+
+  </div>
+        </div>
+  {% endif %}
+
+
+</div>
+
+
+{% endblock %}

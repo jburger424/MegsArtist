@@ -23,22 +23,23 @@ bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
 
-#initiates Genre table
-class Genre(db.Model):
-    __tablename__ = 'genres'
+#initiates Tag table
+class Tag(db.Model):
+    __tablename__ = 'tags'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
-    artists = db.relationship('Artist', backref='genre', lazy='dynamic')
+    artists = db.relationship('Artist', backref='tags', lazy='dynamic')
 
     def __repr__(self):
-        return '<Genre %r>' % self.name
+        return '<Tag %r>' % self.name
+
 
 #initiates Artist table
 class Artist(db.Model):
     __tablename__ = 'artists'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
-    genre_id = db.Column(db.Integer, db.ForeignKey('genres.id'))
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'))
     description = db.Column(db.String(264), unique=False, index=True)
     image = db.Column(db.String(264), unique=False, index=True)
     songName = db.Column(db.String(64), unique=False, index=True)
@@ -47,21 +48,44 @@ class Artist(db.Model):
     def __repr__(self):
         return '<Artist %r>' % self.name
 
+
 #initiates Track table
 class Track(db.Model):
     __tablename__ = 'tracks'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
-    genre_id = db.Column(db.Integer, db.ForeignKey('genres.id'))
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'))
     artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'))
     url = db.Column(db.String(264), unique=False, index=True)
     def __repr__(self):
         return '<Track %r>' % self.name
 
 
+#initiates ArtistToTag table
+class ArtistToTag(db.Model):
+    __tablename__ = 'ArtistToTag'
+    id = db.Column(db.Integer,primary_key=True)
+    artist_id = db.Column(db.Integer,db.ForeignKey('artists.id'))
+    tag_id = db.Column(db.Integer,db.ForeignKey('tags.id'))
+
+    def __repr__(self):
+        return '<ArtistToTag %r>' % self.artist_id, self.tag_id
+
+
+#initiates TrackToTag table
+class TrackToTag(db.Model):
+    __tablename__ = 'TrackToTag'
+    id = db.Column(db.Integer,primary_key=True)
+    track_id = db.Column(db.Integer,db.ForeignKey('tracks.id'))
+    tag_id = db.Column(db.Integer,db.ForeignKey('tags.id'))
+
+    def __repr__(self):
+        return '<TrackToTag %r>' % self.track_id, self.tag_id
+
+
 class ArtistForm(Form):
     artistName = StringField('Artist Name*', validators=[Required()])
-    artistGenre = SelectField(u'Genre', coerce=int, validators=[validators.NumberRange(min=1, max=None, message="Not a Valid Option")])
+    artistTag = SelectField(u'Tag', coerce=int, validators=[validators.NumberRange(min=1, max=None, message="Not a Valid Option")])
     artistDescription = TextAreaField('Description')
     artistImage = StringField('Image URL')
     artistSongName = StringField('Song Name')
@@ -75,7 +99,7 @@ class ArtistForm(Form):
 class TrackForm(Form):
     artistName = StringField('Artist Name*', validators=[Required()])
     trackName = StringField('Track Name*', validators=[Required()])
-    trackGenre = SelectField(u'Genre', coerce=int, validators=[validators.NumberRange(min=1, max=None, message="Not a Valid Option")])
+    trackTag = SelectField(u'Tag', coerce=int, validators=[validators.NumberRange(min=1, max=None, message="Not a Valid Option")])
     trackURL = StringField('Track URL')
     submit = SubmitField('Submit')
 
@@ -122,16 +146,16 @@ def artist(artistName):
 @app.route('/artists/add/', methods=['GET', 'POST'])
 def addArtist():
     artistForm = ArtistForm(csrf_enabled=False)
-    choices = [(genre.id, genre.name) for genre in Genre.query.all()]
+    choices = [(tag.id, tag.name) for tag in Tag.query.all()]
     choices = sorted(choices,key=lambda x: x[1].upper())
     choices.append((-2, "-------------"))
-    choices.append((-1, "**Add Genre**"))
-    artistForm.artistGenre.choices = choices
+    choices.append((-1, "**Add Tag**"))
+    artistForm.artistTag.choices = choices
     if artistForm.validate_on_submit():
         user = Artist.query.filter_by(name=artistForm.artistName.data).first()
         if user is None:
             user = Artist(name=artistForm.artistName.data,
-                      genre_id=artistForm.artistGenre.data,
+                      tag_id=artistForm.artistTag.data,
                       description=artistForm.artistDescription.data,
                       image=artistForm.artistImage.data,
                       songName=artistForm.artistSongName.data,
@@ -139,7 +163,16 @@ def addArtist():
                       )
             db.session.add(user)
             db.session.commit()
-            artistForm.reset()  # TODO: reset genre selector!!
+
+            newArtistToTag = ArtistToTag(
+                artist_id = Artist.query.filter_by(name=artistForm.artistName.data).first().id,
+                tag_id = artistForm.artistTag.data
+            )
+            db.session.add(newArtistToTag)
+            db.session.commit()
+
+            artistForm.reset()  # TODO: reset Tag selector!!
+
             message = user.name + " Successfully Added.  <a href='/artists/" + user.name + "'>View Page</a>"
             flash(message,"success")
 
@@ -150,33 +183,33 @@ def addArtist():
     return render_template('form.html', artistForm=artistForm)
 
 
-@app.route('/artists/add/genre/', methods=['POST'])
+@app.route('/artists/add/tag/', methods=['POST'])
 #doesn't render a page, only used for AJAX post
-def addGenre():
+def addTag():
     jsonData = request.json
-    newGenre = jsonData.get('newGenre')
-    newGenre = Genre.query.filter_by(name=newGenre).first()
-    if newGenre is None:
-        newGenre = jsonData.get('newGenre')
-        genre = Genre(name=newGenre)
-        db.session.add(genre)
+    newTag = jsonData.get('newTag')
+    newTag = Tag.query.filter_by(name=newTag).first()
+    if newTag is None:
+        newTag = jsonData.get('newTag')
+        tag = Tag(name=newTag)
+        db.session.add(tag)
         db.session.commit()
-        newGenreID = Genre.query.filter_by(name=newGenre).first().id
-        #send back success message to js with new genre ID
-        return json.dumps({'success':True,'genre_id':newGenreID}), 200, {'ContentType':'application/json'}
+        newTagID = Tag.query.filter_by(name=newTag).first().id
+        #send back success message to js with new tag ID
+        return json.dumps({'success':True,'tag_id':newTagID}), 200, {'ContentType':'application/json'}
     else:
-        #-1 means duplicate genre
-        return json.dumps({'success':True,'genre_id':-1}), 200, {'ContentType':'application/json'}
+        #-1 means duplicate tag
+        return json.dumps({'success':True,'tag_id':-1}), 200, {'ContentType':'application/json'}
 
 
 @app.route('/tracks/add/<artistName>', methods=['GET', 'POST'])
 def addTrack(artistName):
     trackForm = TrackForm(csrf_enabled=False)
-    choices = [(genre.id, genre.name) for genre in Genre.query.all()]
+    choices = [(tag.id, tag.name) for tag in Tag.query.all()]
     choices = sorted(choices,key=lambda x: x[1].upper())
     choices.append((-2, "-------------"))
-    choices.append((-1, "**Add Genre**"))
-    trackForm.trackGenre.choices = choices
+    choices.append((-1, "**Add Tag**"))
+    trackForm.trackTag.choices = choices
     trackForm.artistName.data=artistName
     if trackForm.validate_on_submit():
         artistName = trackForm.artistName.data
@@ -186,14 +219,23 @@ def addTrack(artistName):
             flash(message,"error")
             return render_template('addTrack.html',trackForm=trackForm)
         else:
-            newTrack =Track(
+            newTrack = Track(
                       artist_id=Artist.query.filter_by(name=artistName).first().id,
                       name = trackForm.trackName.data,
-                      genre_id = trackForm.trackGenre.data,
+                      tag_id = trackForm.trackTag.data,
                       url=trackForm.trackURL.data
                       )
+
             db.session.add(newTrack)
             db.session.commit()
+
+            newTrackToTag = TrackToTag(
+                track_id = Artist.query.filter_by(name=trackForm.trackName.data).first().id,
+                tag_id = trackForm.trackTag.data
+            )
+            db.session.add(newTrackToTag)
+            db.session.commit()
+
             trackForm.reset()
             message = newTrack.name + " Successfully Added."
             flash(message,"success")

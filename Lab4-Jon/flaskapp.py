@@ -47,6 +47,17 @@ class Artist(db.Model):
     def __repr__(self):
         return '<Artist %r>' % self.name
 
+#initiates Track table
+class Track(db.Model):
+    __tablename__ = 'tracks'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True, index=True)
+    genre_id = db.Column(db.Integer, db.ForeignKey('genres.id'))
+    artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'))
+    url = db.Column(db.String(264), unique=False, index=True)
+    def __repr__(self):
+        return '<Track %r>' % self.name
+
 
 class ArtistForm(Form):
     artistName = StringField('Artist Name*', validators=[Required()])
@@ -59,6 +70,17 @@ class ArtistForm(Form):
 
     def reset(self):
         self.artistName.data = self.artistDescription.data = self.artistImage.data = self.artistSongName.data = self.artistSongURL.data = ""
+
+
+class TrackForm(Form):
+    artistName = StringField('Artist Name*', validators=[Required()])
+    trackName = StringField('Track Name*', validators=[Required()])
+    trackGenre = SelectField(u'Genre', coerce=int, validators=[validators.NumberRange(min=1, max=None, message="Not a Valid Option")])
+    trackURL = StringField('Track URL')
+    submit = SubmitField('Submit')
+
+    def reset(self):
+        self.trackName.data=self.trackURL.data=""
 
 
 @app.errorhandler(404)
@@ -119,7 +141,7 @@ def addArtist():
             db.session.commit()
             artistForm.reset()  # TODO: reset genre selector!!
             message = user.name + " Successfully Added.  <a href='/artists/" + user.name + "'>View Page</a>"
-            flash(message,"error")
+            flash(message,"success")
 
         else:
             message = "Error: " + user.name + " Already Exists.  <a href='/artists/" + user.name + "'>View Page</a>"
@@ -145,6 +167,38 @@ def addGenre():
     else:
         #-1 means duplicate genre
         return json.dumps({'success':True,'genre_id':-1}), 200, {'ContentType':'application/json'}
+
+
+@app.route('/tracks/add/<artistName>', methods=['GET', 'POST'])
+def addTrack(artistName):
+    trackForm = TrackForm(csrf_enabled=False)
+    choices = [(genre.id, genre.name) for genre in Genre.query.all()]
+    choices = sorted(choices,key=lambda x: x[1].upper())
+    choices.append((-2, "-------------"))
+    choices.append((-1, "**Add Genre**"))
+    trackForm.trackGenre.choices = choices
+    trackForm.artistName.data=artistName
+    if trackForm.validate_on_submit():
+        artistName = trackForm.artistName.data
+        artist = Artist.query.filter_by(name=artistName).first()
+        if artist is None:
+            message = "Error: " + artistName + " doesn't exist."
+            flash(message,"error")
+            return render_template('addTrack.html',trackForm=trackForm)
+        else:
+            newTrack =Track(
+                      artist_id=Artist.query.filter_by(name=artistName).first().id,
+                      name = trackForm.trackName.data,
+                      genre_id = trackForm.trackGenre.data,
+                      url=trackForm.trackURL.data
+                      )
+            db.session.add(newTrack)
+            db.session.commit()
+            trackForm.reset()
+            message = newTrack.name + " Successfully Added."
+            flash(message,"success")
+
+    return render_template('addTrack.html',trackForm=trackForm)
 
 
 if __name__ == '__main__':

@@ -7,10 +7,9 @@
     <h1>Hello Artists!</h1>
     <ul>
         {% for artistName in artistNames|sort%}
-
             <a href="{{ artistName }}"> <li>{{ artistName }}</li></a>
         {% endfor %}
-    <b><a href="/artists/add/"><li>Add Artist</li></a></b>
+        <b><a href="/artists/add/"><li>Add Artist</li></a></b>
     </ul>
 
 </div>

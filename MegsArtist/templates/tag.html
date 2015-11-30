@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}MegsTag{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        {% if tagName == "null" %}
+            <h1>Sorry, we have no of that tag.</h1>
+        {% else %}
+            <div class="container">
+                <div class="jumbotron">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="row">
+                                <h1>{{ tagName }}</h1>
+                            </div>
+                            <div class="row">
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+
+                    <br>Artists<br>
+                    {% for artist in artists %}
+                        <a href="/artists/{{ artist.name }}">
+                            <li>{{ artist.name }}</li>
+                        </a>
+                    {% endfor %}
+                    <br><br>
+
+                </div>
+
+            </div>
+            <b><a href="/tracks/add/{{ tagName }}">
+                <li>Add a new track for {{ tagName }}</li>
+            </a></b>
+            </div>
+        {% endif %}
+
+
+    </div>
+
+
+{% endblock %}

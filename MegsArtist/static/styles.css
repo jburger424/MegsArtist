@@ -4,3 +4,20 @@ audio{
 #genre_error{
     color: red;
 }
+
+.tt-dataset {
+    border-radius: 5px;
+    border: 2px solid #CCCCCC;
+    padding: 20px;
+    width: 200px;
+    /* height: 150px; */
+    padding: 10px;
+    background-color: white;
+}
+.tt-suggestion.tt-selectable:hover,.tt-suggestion.tt-selectable:active,.tt-suggestion.tt-selectable.tt-cursor {
+    background-color: #DBE8E6;
+}
+
+.tt-suggestion.tt-selectable {
+    cursor: pointer;
+}

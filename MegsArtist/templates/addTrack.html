@@ -10,6 +10,7 @@
 
     {{ wtf.quick_form(trackForm)}}
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".addGenre">Add Genre</button>
+    <input type="text" class="form-control" id="tokenfield" value="red,green,blue" />
 
     <div class="addGenre modal fade addGenre" tabindex="-1" role="dialog" aria-labelledby="addGenre">
         <div class="modal-dialog modal-sm">
@@ -28,6 +29,7 @@
       <span class="input-group-btn">
         <button id="addGenre" class="btn btn-default" type="button">Add New Genre</button>
       </span>
+
                                         <input id="genreInput" type="text" class="form-control" placeholder="Ex: Soft Rock">
                                     </div>
                                     <!-- /input-group -->

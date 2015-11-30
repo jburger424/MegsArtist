@@ -7,17 +7,17 @@
     <div class="page-header">
         <h1>Add an Artist</h1>
     </div>
+     <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".addTag">Add Tag</button>
 
-    {{ wtf.quick_form(artistForm) }}
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".addGenre">Add Genre</button>
+{{ wtf.quick_form(artistForm) }}
 
-    <div class="addGenre modal fade addGenre" tabindex="-1" role="dialog" aria-labelledby="addGenre">
+    <div class="addTag modal fade addTag" tabindex="-1" role="dialog" aria-labelledby="addTag">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="gridSystemModalLabel">Add a Genre</h4>
+                    <h4 class="modal-title" id="gridSystemModalLabel">Add a Tag</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -26,9 +26,9 @@
                                 <div class="col-lg-12">
                                     <div class="input-group">
       <span class="input-group-btn">
-        <button id="addGenre" class="btn btn-default" type="button">Add New Genre</button>
+        <button id="addTag" class="btn btn-default" type="button">Add New Tag</button>
       </span>
-                                        <input id="genreInput" type="text" class="form-control" placeholder="Ex: Soft Rock">
+                                        <input id="tagInput" type="text" class="form-control" placeholder="Ex: Soft Rock">
                                     </div>
                                     <!-- /input-group -->
                                 </div>

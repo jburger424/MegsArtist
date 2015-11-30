@@ -27,7 +27,11 @@
       </div>
     <br>
 
-      <br><br>
+      <br>Tags<br>
+          {% for tag in tags%}
+            <a href="/tags/{{ tag.name }}"> <li>{{ tag.name }}</li></a>
+        {% endfor %}
+  <br><br>
   {% if songURL|length > 3 %}
       <div class="panel panel-default">
   <div class="panel-heading">

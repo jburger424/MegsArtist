@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Jon's Music{% endblock %}
+{% block title %}MegsArtist{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
@@ -27,7 +27,11 @@
       </div>
     <br>
 
-      <br><br>
+      <br>Tags<br>
+          {% for tag in tags%}
+            <a href="/tags/{{ tag.name }}"> <li>{{ tag.name }}</li></a>
+        {% endfor %}
+  <br><br>
   {% if songURL|length > 3 %}
       <div class="panel panel-default">
   <div class="panel-heading">
@@ -48,6 +52,7 @@
   {% endif %}
 
   </div>
+            <b><a href="/tracks/add/{{artistName}}"><li>Add a new track for {{artistName}}</li></a></b>
         </div>
   {% endif %}
 

@@ -10,7 +10,6 @@ from wtforms.validators import Required
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_wtf.file import FileField
 
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
@@ -20,21 +19,24 @@ app.config['SQLALCHEMY_DATABASE_URI'] = \
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 WTF_CSRF_SECRET_KEY = 'a random string'
 
-
-
-
 manager = Manager(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
 
+
+
 artist_to_tag = db.Table('artist_to_tag',
-                         db.Column('artist_id', db.Integer, db.ForeignKey('artist.id')),
-                         db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
-                         db.PrimaryKeyConstraint('artist_id', 'tag_id')
-                         )
+                             db.Column('artist_id', db.Integer, db.ForeignKey('artist.id')),
+                             db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
+                             db.PrimaryKeyConstraint('artist_id', 'tag_id')
+                             )
 
-
+track_to_tag = db.Table('track_to_tag',
+                        db.Column('track_id', db.Integer, db.ForeignKey('track.id')),
+                        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
+                        db.PrimaryKeyConstraint('track_id', 'tag_id')
+                        )
 # initiates Tag table
 class Tag(db.Model):
     # __tablename__ = 'tag'
@@ -44,6 +46,8 @@ class Tag(db.Model):
     # TODO: relationship with tag and track
     artists = db.relationship('Artist', secondary=artist_to_tag,
                               backref=db.backref('tag', lazy='dynamic'))
+    tracks = db.relationship('Track', secondary=track_to_tag,
+                             backref=db.backref('tag', lazy='dynamic'))
 
     def __repr__(self):
         return '<Tag %r>' % self.name
@@ -68,39 +72,18 @@ class Artist(db.Model):
 
 # initiates Track table
 class Track(db.Model):
-    __tablename__ = 'tracks'
+    #__tablename__ = 'track'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
-    # tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
     artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
     url = db.Column(db.String(264), unique=False, index=True)
+    tags = db.relationship('Tag', secondary=track_to_tag,
+                           backref=db.backref('track', lazy='dynamic'))
 
     def __repr__(self):
         return '<Track %r>' % self.name
 
 
-'''
-#initiates ArtistToTag table
-class ArtistToTag(db.Model):
-    __tablename__ = 'ArtistToTag'
-    id = db.Column(db.Integer,primary_key=True)
-    artist_id = db.Column(db.Integer,db.ForeignKey('artist.id'))
-    tag_id = db.Column(db.Integer,db.ForeignKey('tag.id'))
-
-    def __repr__(self):
-        return '<ArtistToTag %r>' % self.artist_id, self.tag_id
-
-
-#initiates TrackToTag table
-class TrackToTag(db.Model):
-    __tablename__ = 'TrackToTag'
-    id = db.Column(db.Integer,primary_key=True)
-    track_id = db.Column(db.Integer,db.ForeignKey('tracks.id'))
-    tag_id = db.Column(db.Integer,db.ForeignKey('tag.id'))
-
-    def __repr__(self):
-        return '<TrackToTag %r>' % self.track_id, self.tag_id
-'''
 
 
 class ArtistForm(Form):
@@ -109,7 +92,7 @@ class ArtistForm(Form):
     artistTags = StringField('Artist Tags')
     artistDescription = TextAreaField('Description')
     artistImage = StringField('Image URL')
-    #photo = FileField('Your photo')
+    # photo = FileField('Your photo')
     submit = SubmitField('Submit')
 
     def reset(self):
@@ -119,8 +102,7 @@ class ArtistForm(Form):
 class TrackForm(Form):
     artistName = StringField('Artist Name*', validators=[Required()])
     trackName = StringField('Track Name*', validators=[Required()])
-    trackTag = SelectMultipleField(u'Tag', coerce=int,
-                                   validators=[validators.NumberRange(min=1, max=None, message="Not a Valid Option")])
+    trackTags = StringField('Track Tags')
     trackURL = StringField('Track URL')
     submit = SubmitField('Submit')
 
@@ -216,7 +198,7 @@ def addArtist():
 @app.route('/getTags/', methods=['GET'])
 def getTags():
     tags = [tag.name for tag in Tag.query.all()]
-    return Response(json.dumps(tags),  mimetype='application/json')
+    return Response(json.dumps(tags), mimetype='application/json')
 
 
 @app.route('/artists/add/tag/', methods=['POST'])
@@ -238,48 +220,36 @@ def addTag():
         return json.dumps({'success': True, 'tag_id': -1}), 200, {'ContentType': 'application/json'}
 
 
-@app.route('/tracks/add/<artistName>', methods=['GET', 'POST'])
-def addTrack(artistName):
+@app.route('/tracks/add/', methods=['GET', 'POST'])
+def addTrack():
     trackForm = TrackForm(csrf_enabled=False)
-    choices = [(tag.id, tag.name) for tag in Tag.query.all()]
-    choices = sorted(choices, key=lambda x: x[1].upper())
-    choices.append((-2, "-------------"))
-    choices.append((-1, "**Add Tag**"))
-    trackForm.trackTag.choices = choices
-    trackForm.artistName.data = artistName
+    trackTags = trackForm.trackTags.data
+    if isinstance(trackTags, str):
+        trackTags = trackTags.split(", ")
     if trackForm.validate_on_submit():
-        artistName = trackForm.artistName.data
-        artist = Artist.query.filter_by(name=artistName).first()
-        if artist is None:
-            message = "Error: " + artistName + " doesn't exist."
+        #user = Artist.query.filter_by(name=trackForm.artistName.data).first()
+        user = Artist.query.join(Tag.artist).filter_by(name=trackForm.artistName.data).first()
+        if user is None:
+            message = "Error: " + user.name + " Does Not Exists."
             flash(message, "error")
-            return render_template('addTrack.html', trackForm=trackForm)
+            return render_template('form.html', trackForm=trackForm)
         else:
-            newTrack = Track(
-                artist_id=Artist.query.filter_by(name=artistName).first().id,
+            track = Track(
                 name=trackForm.trackName.data,
-                tag_id=trackForm.trackTag.data,
-                url=trackForm.trackURL.data
+                artist_id = user.id,
+                url = trackForm.trackURL.data
             )
-
-            db.session.add(newTrack)
-            db.session.commit()
-            '''
-
-            newTrackToTag = TrackToTag(
-                track_id = Artist.query.filter_by(name=trackForm.trackName.data).first().id,
-                tag_id = trackForm.trackTag.data
-            )
-            db.session.add(newTrackToTag)
+        for tagName in trackTags:
+            tag = Tag.query.filter_by(name=tagName).first()
+            if tag is None:
+                tag = Tag(name=tagName)
+            track.tags.append(tag)
+            db.session.add(track)
             db.session.commit()
 
-            trackForm.reset()
-            message = newTrack.name + " Successfully Added."
-            flash(message,"success")
-            '''
-
+        message = user.name + " Successfully Added.  <a href='/artists/" + user.name + "'>View Page</a>"
+        flash(message, "success")
     return render_template('addTrack.html', trackForm=trackForm)
-
 
 if __name__ == '__main__':
     manager.run()

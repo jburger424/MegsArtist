@@ -83,7 +83,7 @@ jQuery(function ($) { // First argument is the jQuery object
     });
 
 
-    $('#artistTags').tokenfield({
+    $('#artistTags,#trackTags').tokenfield({
         typeahead: [null, {source: substringMatcher(getTags())}]
     });
 

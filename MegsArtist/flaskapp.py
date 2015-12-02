@@ -9,10 +9,9 @@ from wtforms import StringField, SubmitField, TextAreaField
 from flask_wtf.file import FileField
 from wtforms.validators import Required
 from flask.ext.sqlalchemy import SQLAlchemy
-
 from werkzeug import secure_filename
 
-UPLOAD_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
+IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
 TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -21,7 +20,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hard to guess string'
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'sqlite:///' + os.path.join(basedir, 'data.sqlite')
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['IMG_FOLDER'] = IMG_FOLDER
 app.config['TRACK_FOLDER'] = TRACK_FOLDER
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 WTF_CSRF_SECRET_KEY = 'a random string'
@@ -170,9 +169,9 @@ def getTag(tagName):
         return render_template('tag.html', tagName=tagObj.name, artists=tagObj.artists)
 
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'],
+@app.route('/uploadedImg/<filename>')
+def uploaded_img(filename):
+    return send_from_directory(app.config['IMG_FOLDER'],
                                filename)
 
 @app.route('/artists/add/', methods=['GET', 'POST'])
@@ -193,9 +192,8 @@ def addArtist():
             )
             if artistForm.artistImage.has_file():
                 filename = secure_filename(artistForm.artistImage.data.filename)
-                artistForm.artistImage.data.save(UPLOAD_FOLDER + filename)
-                url = UPLOAD_FOLDER+filename
-                user.image=url
+                artistForm.artistImage.data.save(IMG_FOLDER + filename)
+                user.image = filename
 
             for tagName in artistTags:
                 tag = Tag.query.filter_by(name=tagName).first()
@@ -257,7 +255,7 @@ def addTrack():
             track = Track(
                 name=trackForm.trackName.data,
                 artist_id = user.id,
-                url = TRACK_FOLDER+trackForm.trackURL.data.filename
+                url = trackForm.trackURL.data.filename
             )
             filename = secure_filename(trackForm.trackURL.data.filename)
             trackForm.trackURL.data.save(TRACK_FOLDER + filename)

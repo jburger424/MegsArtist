@@ -8,5 +8,7 @@
         <h1>Add a Track</h1>
     </div>
 
+   <form method="POST" enctype="multipart/form-data">
     {{ wtf.quick_form(trackForm)}}
+</form>
 {% endblock %}

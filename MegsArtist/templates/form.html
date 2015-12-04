@@ -7,7 +7,11 @@
     <div class="page-header">
         <h1>Add an Artist</h1>
     </div>
-{{ wtf.quick_form(artistForm) }}
+
+<form method="POST" enctype="multipart/form-data">
+    {{ wtf.quick_form(artistForm)}}
+</form>
+
 
     <div class="addTag modal fade addTag" tabindex="-1" role="dialog" aria-labelledby="addTag">
         <div class="modal-dialog modal-sm">

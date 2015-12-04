@@ -1,14 +1,18 @@
 import os
-from werkzeug.utils import secure_filename
-from flask import Flask, render_template, session, redirect, url_for, flash, jsonify, request, json, Response
+
+from flask import Flask, render_template, send_from_directory, flash, json, Response,request, redirect, url_for
 from flask.ext.script import Manager
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.moment import Moment
 from flask.ext.wtf import Form
-from wtforms import StringField, SubmitField, TextAreaField, SelectMultipleField, FieldList, validators
+from wtforms import StringField, SubmitField, TextAreaField
+from flask_wtf.file import FileField
 from wtforms.validators import Required
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask_wtf.file import FileField
+from werkzeug import secure_filename
+
+IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
+TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -16,6 +20,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hard to guess string'
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+app.config['IMG_FOLDER'] = IMG_FOLDER
+app.config['TRACK_FOLDER'] = TRACK_FOLDER
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 WTF_CSRF_SECRET_KEY = 'a random string'
 
@@ -91,7 +97,7 @@ class ArtistForm(Form):
     # artistTags = SelectMultipleField(u'Tag', coerce=int, validators=[validators.NumberRange(message="Not a Valid Option")])
     artistTags = StringField('Artist Tags')
     artistDescription = TextAreaField('Description')
-    artistImage = StringField('Image URL')
+    artistImage = FileField('Upload an Image')
     # photo = FileField('Your photo')
     submit = SubmitField('Submit')
 
@@ -103,7 +109,7 @@ class TrackForm(Form):
     artistName = StringField('Artist Name*', validators=[Required()])
     trackName = StringField('Track Name*', validators=[Required()])
     trackTags = StringField('Track Tags')
-    trackURL = StringField('Track URL')
+    trackURL = FileField('Upload your track',validators=[Required()])
     submit = SubmitField('Submit')
 
     def reset(self):
@@ -163,20 +169,32 @@ def getTag(tagName):
         return render_template('tag.html', tagName=tagObj.name, artists=tagObj.artists)
 
 
+@app.route('/uploadedImg/<filename>')
+def uploaded_img(filename):
+    return send_from_directory(app.config['IMG_FOLDER'],
+                               filename)
+
 @app.route('/artists/add/', methods=['GET', 'POST'])
 def addArtist():
-    artistForm = ArtistForm(csrf_enabled=False)
+    artistForm = ArtistForm(srf_enabled=False)
     artistTags = artistForm.artistTags.data
+
     if isinstance(artistTags, str):
         artistTags = artistTags.split(", ")
+
     if artistForm.validate_on_submit():
         user = Artist.query.filter_by(name=artistForm.artistName.data).first()
+
         if user is None:
             user = Artist(
                 name=artistForm.artistName.data,
-                description=artistForm.artistDescription.data,
-                image=artistForm.artistImage.data
+                description=artistForm.artistDescription.data
             )
+            if artistForm.artistImage.has_file():
+                filename = secure_filename(artistForm.artistImage.data.filename)
+                artistForm.artistImage.data.save(IMG_FOLDER + filename)
+                user.image = filename
+
             for tagName in artistTags:
                 tag = Tag.query.filter_by(name=tagName).first()
                 if tag is None:
@@ -192,8 +210,8 @@ def addArtist():
             message = "Error: " + user.name + " Already Exists.  <a href='/artist/" + user.name + "'>View Page</a>"
             flash(message, "error")
             return render_template('form.html', artistForm=artistForm)
-    return render_template('form.html', artistForm=artistForm)
 
+    return render_template('form.html', artistForm=artistForm)
 
 @app.route('/getTags/', methods=['GET'])
 def getTags():
@@ -237,8 +255,11 @@ def addTrack():
             track = Track(
                 name=trackForm.trackName.data,
                 artist_id = user.id,
-                url = trackForm.trackURL.data
+                url = trackForm.trackURL.data.filename
             )
+            filename = secure_filename(trackForm.trackURL.data.filename)
+            trackForm.trackURL.data.save(TRACK_FOLDER + filename)
+
         for tagName in trackTags:
             tag = Tag.query.filter_by(name=tagName).first()
             if tag is None:

@@ -208,3 +208,24 @@
   padding-left: 0px;
   padding-right: 4px;
 }
+.token-link {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  display: inline-block;
+  border: 1px solid #c6c6c6;
+  background-color: #d7d7d7;
+  white-space: nowrap;
+  margin: -1px 5px 5px 0;
+  height: 22px;
+  vertical-align: top;
+  cursor: pointer;
+  padding: 0px 5px;
+  height: 45px;
+}
+.token-link:hover{
+  background-color: #b0b0b0;
+}

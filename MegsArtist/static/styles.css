@@ -21,3 +21,15 @@ audio{
 .tt-suggestion.tt-selectable {
     cursor: pointer;
 }
+
+#tracks li.active {
+  background-color: #CCCCCC;
+}
+
+#tracks li {
+    list-style-type: none;
+  cursor: pointer;
+}
+li.active:before {
+        content: '\25BA';
+}

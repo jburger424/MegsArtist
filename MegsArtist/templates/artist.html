@@ -32,6 +32,11 @@
             <a href="/tags/{{ tag.name }}"> <li>{{ tag.name }}</li></a>
         {% endfor %}
   <br><br>
+  <br>Tracks<br>
+          {% for track in tracks%}
+            <a href="/uploadedTrack/{{track.url}}"> <li>{{ track.name }}</li></a>
+        {% endfor %}
+  <br><br>
   {% if songURL|length > 3 %}
       <div class="panel panel-default">
   <div class="panel-heading">

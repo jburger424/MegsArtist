@@ -148,13 +148,15 @@ def artists():
 def getArtist(artistName):
     # artistObj = Artist.query.filter_by(name=artistName).first()
     artistObj = Artist.query.join(Tag.artist).filter_by(name=artistName).first()
+    tracks = Track.query.filter_by(id = artistObj.id).all()
     print(artistObj.tags)
     if artistObj is None:
         return render_template('artist.html', artistName="null")
     else:
         return render_template('artist.html', artistName=artistObj.name,
                                artistDescription=artistObj.description,
-                               artistImageURL=artistObj.image, tags=artistObj.tags
+                               artistImageURL=artistObj.image, tags=artistObj.tags,
+                               tracks=tracks
                                )
 
 
@@ -173,6 +175,12 @@ def getTag(tagName):
 def uploaded_img(filename):
     return send_from_directory(app.config['IMG_FOLDER'],
                                filename)
+
+@app.route('/uploadedTrack/<filename>')
+def uploaded_song(filename):
+    return send_from_directory(app.config['TRACK_FOLDER'],
+                               filename)
+
 
 @app.route('/artists/add/', methods=['GET', 'POST'])
 def addArtist():
@@ -237,7 +245,7 @@ def addTag():
         # -1 means duplicate tag
         return json.dumps({'success': True, 'tag_id': -1}), 200, {'ContentType': 'application/json'}
 
-
+#add track
 @app.route('/tracks/add/', methods=['GET', 'POST'])
 def addTrack():
     trackForm = TrackForm(csrf_enabled=False)

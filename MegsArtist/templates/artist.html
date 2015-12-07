@@ -3,72 +3,90 @@
 {% block title %}MegsArtist{% endblock %}
 
 {% block page_content %}
-<div class="page-header">
-    {% if artistName == "null" %}
-    <h1>Sorry, we have no record of them.</h1>
-    {% else %}
-        <div class="container">
-  <div class="jumbotron">
-      <div class="row">
-          <div class="col-md-8">
-              <div class="row">
-                  <h1>{{ artistName }}</h1>
-              </div>
-              <div class="row">
-                  <h3>{{ artistDescription }}</h3>
-              </div>
-          </div>
-          <div class="col-md-4">
-              {% if artistImageURL%}
-              <img src=/uploadedImg/{{artistImageURL}} class="artist-image img-circle img-responsive">
-              {% endif %}
-
-          </div>
-      </div>
-    <br>
-
-      <br>Tags<br>
-          {% for tag in tags%}
-            <a href="/tags/{{ tag.name }}"> <li>{{ tag.name }}</li></a>
-        {% endfor %}
-  <br><br>
-  <br>Tracks<br>
-  <ul id="tracks">
-      {% for track in tracks%}
-            <li data-track-url="/uploadedTrack/{{ track.url }}">{{ track.name }}</li>
-      {% endfor %}
-  </ul>
-  <audio id="player" controls="controls">
-  Your browser does not support the <code>audio</code> element.
-  <source id="player-source" src="foo.wav" type="audio/wav">
-</audio>
-  <br><br>
-  {% if songURL|length > 3 %}
-      <div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title text-center">
-        {% if songName|length > 0 %}
-        {{ songName }}
+    <div class="page-header">
+        {% if artistName == "null" %}
+            <h1>Sorry, we have no record of them.</h1>
         {% else %}
-            Unknown Song
-            {% endif %}
-        - {{ artistName }}</h3>
-  </div>
-  <div class="panel-body">
-          <audio controls autoplay>
-  <source src={{ songURL }} type="audio/mpeg">
-      </audio>
-  </div>
-</div>
-  {% endif %}
+            <div class="container">
+                <div class="jumbotron">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="row">
+                                <h1>{{ artistName }}</h1>
+                            </div>
+                            <div class="row">
+                                {% for tag in tags %}
+                                    <a class="token-link" href="/tags/{{ tag.name }}"> {{ tag.name }}</a>
+                                {% endfor %}
+                            </div>
+                            <div class="row">
+                                <h3>{{ artistDescription }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            {% if artistImageURL %}
+                                <img src=/uploadedImg/{{ artistImageURL }} class="artist-image img-circle img-responsive
+                                ">
+                            {% endif %}
 
-  </div>
-            <b><a href="/tracks/add"><li>Add a new track for {{artistName}}</li></a></b>
-        </div>
-  {% endif %}
+                        </div>
+                    </div>
+                    <br>
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <h2 class="text-center">Tracks</h2>
+                            <ul class="list-group" id="tracks">
+                                {% for track in tracks %}
+                                    <li class="list-group-item"
+                                        data-track-url="/uploadedTrack/{{ track.url }}">{{ track.name }}</li>
+                                {% endfor %}
+                            </ul>
+                            <button id="prev" type="button" class="btn btn-default btn-lg">
+                                <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
+                            </button>
+                            <button id="next" type="button" class="btn btn-default btn-lg">
+                                <span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span>
+                            </button>
+                            <audio id="player" controls="controls">
+                                Your browser does not support the <code>audio</code> element.
+                                <source id="player-source" src="#" type="audio/wav">
+                            </audio>
+                        </div>
+                    </div>
+
+                    </ul>
+
+                    <br><br>
+                    {% if songURL|length > 3 %}
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title text-center">
+                                    {% if songName|length > 0 %}
+                                        {{ songName }}
+                                    {% else %}
+                                        Unknown Song
+                                    {% endif %}
+                                    - {{ artistName }}</h3>
+                            </div>
+                            <div class="panel-body">
+                                <audio controls autoplay>
+                                    <source src={{ songURL }} type="audio/mpeg">
+                                </audio>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+                <b><a href="/tracks/add">
+                    <li>Add a new track for {{ artistName }}</li>
+                </a></b>
+            </div>
+        {% endif %}
 
 
-</div>
+    </div>
 
 
 {% endblock %}

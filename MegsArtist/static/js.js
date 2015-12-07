@@ -99,8 +99,10 @@ jQuery(function ($) { // First argument is the jQuery object
     var audio = $("#player");
 
     function change(URL) {
-        $("ul li.active").attr("class", "inactive");
-        $('li[data-track-url="' + URL + '"]').attr("class", "active");
+        $("ul li.active").toggleClass("active",false);
+        $('li[data-track-url="' + URL + '"]').toggleClass("active",true);
+        //$("ul li.active").attr("class", "inactive");
+        //$('li[data-track-url="' + URL + '"]').attr("class", "active");
         $("#player-source").attr("src", URL);
         audio[0].pause();
         audio[0].load(); //suspends and restores all audio element
@@ -126,7 +128,7 @@ jQuery(function ($) { // First argument is the jQuery object
         change(next.attr("data-track-url"));
     }
 
-    $('ul#tracks li').click(function () {
+    $('ul#tracks li.list-group-item').click(function () {
         change($(this).attr("data-track-url"));
     });
 

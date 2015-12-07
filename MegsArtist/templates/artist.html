@@ -33,9 +33,15 @@
         {% endfor %}
   <br><br>
   <br>Tracks<br>
-          {% for track in tracks%}
-            <a href="/uploadedTrack/{{track.url}}"> <li>{{ track.name }}</li></a>
-        {% endfor %}
+  <ul id="tracks">
+      {% for track in tracks%}
+            <li data-track-url="/uploadedTrack/{{ track.url }}">{{ track.name }}</li>
+      {% endfor %}
+  </ul>
+  <audio id="player" controls="controls">
+  Your browser does not support the <code>audio</code> element.
+  <source id="player-source" src="foo.wav" type="audio/wav">
+</audio>
   <br><br>
   {% if songURL|length > 3 %}
       <div class="panel panel-default">

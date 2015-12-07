@@ -21,3 +21,11 @@ audio{
 .tt-suggestion.tt-selectable {
     cursor: pointer;
 }
+
+#tracks li.active {
+  background-color: yellow;
+}
+
+#tracks li {
+  cursor: pointer;
+}

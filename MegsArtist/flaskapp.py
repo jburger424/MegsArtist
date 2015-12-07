@@ -10,9 +10,10 @@ from flask_wtf.file import FileField
 from wtforms.validators import Required
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
-
-IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
-TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
+IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
+TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
+#IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
+#TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -148,8 +149,8 @@ def artists():
 def getArtist(artistName):
     # artistObj = Artist.query.filter_by(name=artistName).first()
     artistObj = Artist.query.join(Tag.artist).filter_by(name=artistName).first()
-    tracks = Track.query.filter_by(id = artistObj.id).all()
-    print(artistObj.tags)
+    tracks = Track.query.filter_by(artist_id = artistObj.id).all()
+    print(tracks)
     if artistObj is None:
         return render_template('artist.html', artistName="null")
     else:

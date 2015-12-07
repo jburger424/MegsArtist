@@ -261,13 +261,14 @@ def addTrack():
             flash(message, "error")
             return render_template('form.html', trackForm=trackForm)
         else:
+            filename = secure_filename(trackForm.trackURL.data.filename)
             track = Track(
                 name=trackForm.trackName.data,
                 artist_id = user.id,
-                url = trackForm.trackURL.data.filename
+                url = filename
             )
-            filename = secure_filename(trackForm.trackURL.data.filename)
             trackForm.trackURL.data.save(TRACK_FOLDER + filename)
+
 
         for tagName in trackTags:
             tag = Tag.query.filter_by(name=tagName).first()

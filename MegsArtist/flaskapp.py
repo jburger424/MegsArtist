@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, send_from_directory, flash, json, Response,request, redirect, url_for
+from flask import Flask, render_template, send_from_directory, flash, json, Response,request, redirect, url_for, session
 from flask.ext.script import Manager
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.moment import Moment
@@ -188,6 +188,7 @@ def uploaded_song(filename):
 @app.route('/artists/add/', defaults={'artistname':None},methods=['GET', 'POST'])
 @app.route('/artists/add/<artistname>', methods=['GET', 'POST'])
 def addArtist(artistname):
+    print(session['artistname'])
     artistForm = ArtistForm(srf_enabled=False)
     if artistname is not None:
         artist = Artist.query.join(Tag.artist).filter_by(name=artistname).first()
@@ -248,6 +249,19 @@ def getArtists():
     artists = [artist.name for artist in Artist.query.all()]
     return Response(json.dumps(artists), mimetype='application/json')
 
+@app.route('/user/<userName>/')
+def setUser(userName):
+    if userName != "fan":
+        print("its an artist")
+        session['usertype'] = "artist"
+        session['artistname'] = userName
+        return redirect('/artists/add/'+userName)
+    else:
+        print("its a fan")
+        session['usertype'] = "fan"
+        return redirect('/artists/')
+    return
+
 
 @app.route('/artists/add/tag/', methods=['POST'])
 # doesn't render a page, only used for AJAX post
@@ -271,6 +285,7 @@ def addTag():
 @app.route('/tracks/add/', defaults={'artistname':None},methods=['GET', 'POST'])
 @app.route('/tracks/add/<artistname>', methods=['GET', 'POST'])
 def addTrack(artistname):
+    print(session['artistname'])
     trackForm = TrackForm(csrf_enabled=False)
     if artistname is not None:
         trackForm.artistName.data = artistname

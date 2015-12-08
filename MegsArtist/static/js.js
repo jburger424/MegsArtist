@@ -129,11 +129,11 @@ $('.modal').on('shown.bs.modal', function() {
 $("input#artistInput").keypress(function(event) {
     if (event.which == 13) {
         event.preventDefault();
-        window.location.href = "/artists/"+$("input#artistInput").val();
+        window.location.href = "/user/"+$("input#artistInput").val();
     }
 });
 $("#artistGo").click(function(){
-window.location.href = "/artists/"+$("input#artistInput").val();
+window.location.href = "/user/"+$("input#artistInput").val();
 });
 
 function change(URL) {

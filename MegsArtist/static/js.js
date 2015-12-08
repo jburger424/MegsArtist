@@ -38,8 +38,24 @@ jQuery(function ($) { // First argument is the jQuery object
         return tags;
     };
 
+        function getArtists() {
+        var artists = [];
+        $.ajax({
+            type: "GET",
+            url: "/getArtists/",
+            dataType: "json",
+            complete: function (xhr, textStatus) {
+                var oldArtists = xhr.responseJSON;
+                for (var x = 0; x < oldArtists.length; x++) {
+                    artists.push(oldArtists[x]);
+                }
+            }
+        });
+        return artists;
+    };
 
-    $("button#addTag").on("click", function () {
+
+    /*$("button#addTag").on("click", function () {
         var newTag = ($("#tagInput").val());
         var artistName = $("input#artistName").val();
         var data = {
@@ -73,13 +89,17 @@ jQuery(function ($) { // First argument is the jQuery object
             }
 
         })
-    });
+    });*/
 
 //will open addTag modal
     $('select').on('change', function () {
         if (this.value == -1) {
             $('.addTag').modal('show');
         }
+    });
+    $('#artistInput').typeahead(null, {
+        //displayKey: 'num',
+        source:substringMatcher(getArtists())
     });
 
 
@@ -109,11 +129,11 @@ $('.modal').on('shown.bs.modal', function() {
 $("input#artistInput").keypress(function(event) {
     if (event.which == 13) {
         event.preventDefault();
-        window.location.href = "/artists/"+$("input#artistInput").val();
+        window.location.href = "/user/"+$("input#artistInput").val();
     }
 });
 $("#artistGo").click(function(){
-window.location.href = "/artists/"+$("input#artistInput").val();
+window.location.href = "/user/"+$("input#artistInput").val();
 });
 
 function change(URL) {
@@ -171,7 +191,9 @@ $(window).load(function () {
         console.log("before init audio");
         audio = $("#player");
         console.log("after init audio");
-
+        $("a").click(function(){
+            change("#");
+        });
         $('ul#tracks li.list-group-item').click(function () {
             change($(this).attr("data-track-url"));
         });
@@ -185,10 +207,10 @@ $(window).load(function () {
         });
         $("#next").click(function () {
             nextSong();
-            console.log("length: " + $('ul#tracks li').length);
-            var randomTrack = Math.floor((Math.random() * $('ul#tracks li').length) + 1);
-            change($("ul li.list-group-item:nth-child(" + randomTrack + ")").attr("data-track-url"));
         });
+        console.log("length: " + $('ul#tracks li').length);
+        var randomTrack = Math.floor((Math.random() * $('ul#tracks li').length) + 1);
+        change($("ul li.list-group-item:nth-child(" + randomTrack + ")").attr("data-track-url"));
         /*var randomTrack = Math.floor((Math.random() * $('ul#tracks li').length) + 1);
         change($("ul li.list-group-item:nth-child(" + randomTrack + ")").attr("data-track-url"));*/
     }

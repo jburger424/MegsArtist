@@ -124,3 +124,16 @@ li.active:before {
 .landing-text{
     font-size:40px;
 }
+.form-tabs div{
+    font-size: 25px;
+}
+.form-tabs div.active{
+    font-weight: bold;
+    text-decoration: underline;
+}
+.modal .twitter-typeahead{
+        width: 100%;
+}
+.panel{
+    min-height: 100px !Important;
+}

@@ -3,16 +3,18 @@
 {% block title %}MegsArtist{% endblock %}
 
 {% block page_content %}
-<div class="page-header">
-    <h1>Hello Artists!</h1>
+    <div class="page-header">
+            <div class="row text-center form-tabs">
+            <div class="active col-md-2 col-md-offset-4"><a href="/artists/">Artists</a></div>
+            <div class="col-md-2"><a href="/tags/">Tags</a></div>
+        </div>
+    </div>
     <ul>
         {% for artistName in artistNames|sort%}
             <a href="{{ artistName }}"> <li>{{ artistName }}</li></a>
         {% endfor %}
         <b><a href="/artists/add/"><li>Add Artist</li></a></b>
     </ul>
-
-</div>
 
 
 {% endblock %}

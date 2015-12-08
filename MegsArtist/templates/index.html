@@ -11,6 +11,12 @@
         <div class="landing-text">Recommend &amp; discover <strong>new music</strong></div>
     </div>
     <div class="row">
+        {% if session['artistname'] %}
+            <div class="row">
+            <a href="/user/{{session['artistname']}}"><h2>Continue as <strong>{{session['artistname']}}</strong>?</h2></a>
+            </div>
+
+        {% endif %}
         <div class="row">
             <h2>Are you an</h2>
         </div>

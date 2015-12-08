@@ -37,6 +37,7 @@
                                 <h3>{{ artistDescription }}</h3>
                             </div>
                         </div>
+                        {% if tracks|length > 0 %}
                         <div class="col-md-4">
                             <h2 class="text-center">Tracks</h2>
                             <ul class="list-group" id="tracks">
@@ -56,6 +57,7 @@
                                 <source id="player-source" src="#" type="audio/wav">
                             </audio>
                         </div>
+                        {% endif %}
                     </div>
                     <br>
 
@@ -65,26 +67,6 @@
                     </div>
 
                     </ul>
-
-                    <br><br>
-                    {% if songURL|length > 3 %}
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h3 class="panel-title text-center">
-                                    {% if songName|length > 0 %}
-                                        {{ songName }}
-                                    {% else %}
-                                        Unknown Song
-                                    {% endif %}
-                                    - {{ artistName }}</h3>
-                            </div>
-                            <div class="panel-body">
-                                <audio controls autoplay>
-                                    <source src={{ songURL }} type="audio/mpeg">
-                                </audio>
-                            </div>
-                        </div>
-                    {% endif %}
 
                 </div>
                 <b><a href="/tracks/add">

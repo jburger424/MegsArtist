@@ -12,7 +12,9 @@
     <div class="jumbotron">
         <div class="row">
             {% for tagName in tagNames|sort %}
+                {%  if tagName|length > 0 %}
                 <a class="token-link" href="/tags/{{ tagName }}"> {{ tagName }}</a>
+                {% endif %}
             {% endfor %}
         </div>
     </div>

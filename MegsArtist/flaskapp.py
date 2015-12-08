@@ -152,9 +152,12 @@ def getArtist(artistName):
     # artistObj = Artist.query.filter_by(name=artistName).first()
     artistObj = Artist.query.join(Tag.artist).filter_by(name=artistName).first()
     if artistObj is None:
-        message = artistName + " doesn't exist. Tell us about yourself!"
-        flash(message)
-        return redirect('/artists/add/' + artistName)
+        if session['usertype']=="artist":
+            message = artistName + " doesn't exist. Tell us about yourself!"
+            flash(message)
+            return redirect('/artists/add/')
+        else:
+            return render_template('artist.html', artistName="null")
     else:
         tracks = Track.query.filter_by(artist_id=artistObj.id).all()
         return render_template('artist.html', artistName=artistObj.name,
@@ -187,33 +190,20 @@ def uploaded_song(filename):
                                filename)
 
 
-@app.route('/artists/add/', defaults={'artistname': None}, methods=['GET', 'POST'])
-@app.route('/artists/add/<artistname>', methods=['GET', 'POST'])
-def addArtist(artistname):
+
+#@app.route('/artists/add/', defaults={'artistname': None}, methods=['GET', 'POST'])
+#@app.route('/artists/add/<artistname>', methods=['GET', 'POST'])
+@app.route('/artists/add/', methods=['GET', 'POST'])
+def addArtist():
     isNew = True
-    print(session['artistname'])
     artistForm = ArtistForm(srf_enabled=False)
-    artistTags = artistForm.artistTags.data
-    if isinstance(artistTags, str):
-        artistTags = artistTags.split(", ")
-    if artistname is not None:
-        isNew = False
-        artist = Artist.query.join(Tag.artist).filter_by(name=artistname).first()
-        artistForm.artistName.data = artistname
-        if artist is not None and artist.description != artistForm.artistDescription.data:
-            tags = []
-            for tag in artist.tags:
-                tags.append(tag.name)
-            tags = ", ".join(tags)
-            artistForm.artistTags.data = tags
-            artistForm.artistDescription.data = artist.description
-    else:
-        print("no artist name")
-
-
+    artist = Artist.query.join(Tag.artist).filter_by(name=session['artistname']).first()
     if artistForm.validate_on_submit():
+        artistTags = artistForm.artistTags.data
+        if isinstance(artistTags, str):
+            artistTags = artistTags.split(", ")
         # user = Artist.query.filter_by(name=artistForm.artistName.data).first()
-        user = Artist.query.join(Tag.artist).filter_by(name=artistname).first()
+        user = Artist.query.join(Tag.artist).filter_by(name=session['artistname']).first()
         if user is None:
             user = Artist(
                 name=artistForm.artistName.data
@@ -237,14 +227,33 @@ def addArtist(artistname):
 
         message = user.name + " Successfully Added.  <a href='/artists/" + user.name + "'>View Page</a>"
         flash(message, "success")
+        print("did validate")
+
+    else:
+        print("didn't validate")
+        artistForm.artistName.data = session['artistname']
+        if artist is not None:
+            tags = []
+            for tag in artist.tags:
+                tags.append(tag.name)
+            tags = ", ".join(tags)
+            artistForm.artistTags.data = tags
+            artistForm.artistDescription.data = artist.description
     return render_template('form.html', artistForm=artistForm)
 
-    '''else:
-        user.description = artistForm.artistDescription.data
-        user.ta
-        message = "Error: " + user.name + " Already Exists.  <a href='/artists/" + user.name + "'>View Page</a>"
-        flash(message, "error")
-        return render_template('form.html', artistForm=artistForm)'''
+    '''if artist is not None: #if it already exists in database
+        isNew = False
+        artistForm.artistName.default = session['artistname']
+        tags = []
+        for tag in artist.tags:
+            tags.append(tag.name)
+        tags = ", ".join(tags)
+        artistForm.artistTags.default = tags
+        artistForm.artistDescription.default = artist.description
+    else:
+        print("doesn't exist")'''
+
+
 
 
 
@@ -265,9 +274,9 @@ def getArtists():
 @app.route('/user/<userName>/')
 def setUser(userName):
     if userName != "fan":
-        print("its an artist")
         session['usertype'] = "artist"
         session['artistname'] = userName
+        artist = Artist.query.join(Tag.artist).filter_by(name=userName).first()
         return redirect('/artists/' + userName)
     else:
         session.pop('artistname', None)

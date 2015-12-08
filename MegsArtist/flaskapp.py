@@ -152,9 +152,12 @@ def getArtist(artistName):
     # artistObj = Artist.query.filter_by(name=artistName).first()
     artistObj = Artist.query.join(Tag.artist).filter_by(name=artistName).first()
     if artistObj is None:
-        message = artistName + " doesn't exist. Tell us about yourself!"
-        flash(message)
-        return redirect('/artists/add/' + artistName)
+        if session['usertype']=="artist":
+            message = artistName + " doesn't exist. Tell us about yourself!"
+            flash(message)
+            return redirect('/artists/add/')
+        else:
+            return render_template('artist.html', artistName="null")
     else:
         tracks = Track.query.filter_by(artist_id=artistObj.id).all()
         return render_template('artist.html', artistName=artistObj.name,

@@ -15,6 +15,7 @@
                                 <div class="col-md-8">
                                     <div class="row">
                                         <h1>{{ artistName }}</h1>
+                                        <a href="/artists/add/{{ artistName }}">Edit</a>
                                     </div>
                                     <div class="row">
                                         {% for tag in tags %}
@@ -50,7 +51,7 @@
                             <button id="next" type="button" class="btn btn-default btn-lg">
                                 <span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span>
                             </button>
-                            <audio id="player" controls="controls">
+                            <audio id="player" preload = "none" controls="controls">
                                 Your browser does not support the <code>audio</code> element.
                                 <source id="player-source" src="#" type="audio/wav">
                             </audio>

@@ -134,3 +134,6 @@ li.active:before {
 .modal .twitter-typeahead{
         width: 100%;
 }
+.panel{
+    min-height: 100px !Important;
+}

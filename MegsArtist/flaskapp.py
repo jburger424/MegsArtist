@@ -136,13 +136,16 @@ def index():
 @app.route('/tags/')
 def tags():
     return render_template('tags.html', tagNames=[tag.name for tag in
-                                                  Tag.query.all()])  # artistNames=session.get('artistNameList')
+                                                  Tag.query.all()])
 
 
 @app.route('/artists/')
 def artists():
-    return render_template('artists.html', artistNames=[artist.name for artist in
-                                                        Artist.query.all()])  # artistNames=session.get('artistNameList')
+    artistNamesImages = zip([artist.name for artist in
+                                                        Artist.query.all()],[artist.image for artist in
+                                                        Artist.query.all()])
+
+    return render_template('artists.html', artistNamesImages = sorted(artistNamesImages, key=lambda tup: tup[0]))
 
 
 @app.route('/artists/<artistName>')

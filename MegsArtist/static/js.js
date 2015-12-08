@@ -191,7 +191,9 @@ $(window).load(function () {
         console.log("before init audio");
         audio = $("#player");
         console.log("after init audio");
-
+        $("a").click(function(){
+            change("#");
+        });
         $('ul#tracks li.list-group-item').click(function () {
             change($(this).attr("data-track-url"));
         });
@@ -205,10 +207,10 @@ $(window).load(function () {
         });
         $("#next").click(function () {
             nextSong();
-            console.log("length: " + $('ul#tracks li').length);
-            var randomTrack = Math.floor((Math.random() * $('ul#tracks li').length) + 1);
-            change($("ul li.list-group-item:nth-child(" + randomTrack + ")").attr("data-track-url"));
         });
+        console.log("length: " + $('ul#tracks li').length);
+        var randomTrack = Math.floor((Math.random() * $('ul#tracks li').length) + 1);
+        change($("ul li.list-group-item:nth-child(" + randomTrack + ")").attr("data-track-url"));
         /*var randomTrack = Math.floor((Math.random() * $('ul#tracks li').length) + 1);
         change($("ul li.list-group-item:nth-child(" + randomTrack + ")").attr("data-track-url"));*/
     }

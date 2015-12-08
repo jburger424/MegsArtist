@@ -103,7 +103,15 @@ jQuery(function ($) { // First argument is the jQuery object
 
 })
 /*if ( $( "ul#tracks" ).length ) {*/
-
+$('.modal').on('shown.bs.modal', function() {
+  $(this).find('[autofocus]').focus();
+});
+$("input#artistInput").keypress(function(event) {
+    if (event.which == 13) {
+        event.preventDefault();
+        window.location.href = "/artists/"+$("input#artistInput").val();
+    }
+});
 $("#artistGo").click(function(){
 window.location.href = "/artists/"+$("input#artistInput").val();
 });

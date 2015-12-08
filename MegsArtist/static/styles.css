@@ -116,3 +116,11 @@ li.active:before {
     text-align: center;
     margin: auto;
 }
+.landing-brand{
+    color: #ff6666;
+    font-size: 120px;
+    /*include pink font stuff*/
+}
+.landing-text{
+    font-size:40px;
+}

@@ -15,7 +15,9 @@
                                 <div class="col-md-8">
                                     <div class="row">
                                         <h1>{{ artistName }}</h1>
-                                        <a href="/artists/add/{{ artistName }}">Edit</a>
+                                        {% if session['artistname'] %}
+                                        <a href="/artists/add/">Edit</a>
+                                        {%  endif %}
                                     </div>
                                     <div class="row">
                                         {% for tag in tags %}

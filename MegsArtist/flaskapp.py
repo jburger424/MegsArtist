@@ -260,7 +260,6 @@ def setUser(userName):
         print("its a fan")
         session['usertype'] = "fan"
         return redirect('/artists/')
-    return
 
 
 @app.route('/artists/add/tag/', methods=['POST'])

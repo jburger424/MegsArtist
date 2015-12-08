@@ -1,6 +1,6 @@
 import os
-
-from flask import Flask, render_template, send_from_directory, flash, json, Response,request, redirect, url_for, session
+from flask import Flask, render_template, send_from_directory, flash, json, Response, request, redirect, url_for, \
+    session
 from flask.ext.script import Manager
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.moment import Moment
@@ -10,10 +10,11 @@ from flask_wtf.file import FileField
 from wtforms.validators import Required
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
+
 IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
 TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
-#IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
-#TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
+# IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
+# TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -31,19 +32,19 @@ bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
 
-
-
 artist_to_tag = db.Table('artist_to_tag',
-                             db.Column('artist_id', db.Integer, db.ForeignKey('artist.id')),
-                             db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
-                             db.PrimaryKeyConstraint('artist_id', 'tag_id')
-                             )
+                         db.Column('artist_id', db.Integer, db.ForeignKey('artist.id')),
+                         db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
+                         db.PrimaryKeyConstraint('artist_id', 'tag_id')
+                         )
 
 track_to_tag = db.Table('track_to_tag',
                         db.Column('track_id', db.Integer, db.ForeignKey('track.id')),
                         db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
                         db.PrimaryKeyConstraint('track_id', 'tag_id')
                         )
+
+
 # initiates Tag table
 class Tag(db.Model):
     # __tablename__ = 'tag'
@@ -79,7 +80,7 @@ class Artist(db.Model):
 
 # initiates Track table
 class Track(db.Model):
-    #__tablename__ = 'track'
+    # __tablename__ = 'track'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
     artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
@@ -89,8 +90,6 @@ class Track(db.Model):
 
     def __repr__(self):
         return '<Track %r>' % self.name
-
-
 
 
 class ArtistForm(Form):
@@ -110,7 +109,7 @@ class TrackForm(Form):
     artistName = StringField('Artist Name*', validators=[Required()])
     trackName = StringField('Track Name*', validators=[Required()])
     trackTags = StringField('Track Tags')
-    trackURL = FileField('Upload your track',validators=[Required()])
+    trackURL = FileField('Upload your track', validators=[Required()])
     submit = SubmitField('Submit')
 
     def reset(self):
@@ -142,10 +141,10 @@ def tags():
 @app.route('/artists/')
 def artists():
     artistNamesImages = zip([artist.name for artist in
-                                                        Artist.query.all()],[artist.image for artist in
-                                                        Artist.query.all()])
+                             Artist.query.all()], [artist.image for artist in
+                                                   Artist.query.all()])
 
-    return render_template('artists.html', artistNamesImages = sorted(artistNamesImages, key=lambda tup: tup[0]))
+    return render_template('artists.html', artistNamesImages=sorted(artistNamesImages, key=lambda tup: tup[0]))
 
 
 @app.route('/artists/<artistName>')
@@ -155,9 +154,9 @@ def getArtist(artistName):
     if artistObj is None:
         message = artistName + " doesn't exist. Tell us about yourself!"
         flash(message)
-        return redirect('/artists/add/'+artistName)
+        return redirect('/artists/add/' + artistName)
     else:
-        tracks = Track.query.filter_by(artist_id = artistObj.id).all()
+        tracks = Track.query.filter_by(artist_id=artistObj.id).all()
         return render_template('artist.html', artistName=artistObj.name,
                                artistDescription=artistObj.description,
                                artistImageURL=artistObj.image, tags=artistObj.tags,
@@ -181,22 +180,27 @@ def uploaded_img(filename):
     return send_from_directory(app.config['IMG_FOLDER'],
                                filename)
 
+
 @app.route('/uploadedTrack/<filename>')
 def uploaded_song(filename):
     return send_from_directory(app.config['TRACK_FOLDER'],
                                filename)
 
 
-
-@app.route('/artists/add/', defaults={'artistname':None},methods=['GET', 'POST'])
+@app.route('/artists/add/', defaults={'artistname': None}, methods=['GET', 'POST'])
 @app.route('/artists/add/<artistname>', methods=['GET', 'POST'])
 def addArtist(artistname):
+    isNew = True
     print(session['artistname'])
     artistForm = ArtistForm(srf_enabled=False)
+    artistTags = artistForm.artistTags.data
+    if isinstance(artistTags, str):
+        artistTags = artistTags.split(", ")
     if artistname is not None:
+        isNew = False
         artist = Artist.query.join(Tag.artist).filter_by(name=artistname).first()
         artistForm.artistName.data = artistname
-        if artist is not None:
+        if artist is not None and artist.description != artistForm.artistDescription.data:
             tags = []
             for tag in artist.tags:
                 tags.append(tag.name)
@@ -205,52 +209,58 @@ def addArtist(artistname):
             artistForm.artistDescription.data = artist.description
     else:
         print("no artist name")
-    artistTags = artistForm.artistTags.data
-    if isinstance(artistTags, str):
-        artistTags = artistTags.split(", ")
+
 
     if artistForm.validate_on_submit():
-        #user = Artist.query.filter_by(name=artistForm.artistName.data).first()
+        # user = Artist.query.filter_by(name=artistForm.artistName.data).first()
         user = Artist.query.join(Tag.artist).filter_by(name=artistname).first()
-
         if user is None:
             user = Artist(
-                name=artistForm.artistName.data,
-                description=artistForm.artistDescription.data
+                name=artistForm.artistName.data
             )
-            if artistForm.artistImage.has_file():
-                filename = secure_filename(artistForm.artistImage.data.filename)
-                artistForm.artistImage.data.save(IMG_FOLDER + filename)
-                user.image = filename
 
-            for tagName in artistTags:
-                tag = Tag.query.filter_by(name=tagName).first()
-                if tag is None:
-                    tag = Tag(name=tagName)
+        user.description = artistForm.artistDescription.data
+
+        if artistForm.artistImage.has_file():
+            filename = secure_filename(artistForm.artistImage.data.filename)
+            artistForm.artistImage.data.save(IMG_FOLDER + filename)
+            user.image = filename
+        for tagName in artistTags:
+            tag = Tag.query.filter_by(name=tagName).first()
+            if tag is None:
+                tag = Tag(name=tagName)
+            if not tag in user.tags:
                 user.tags.append(tag)
-                db.session.add(user)
-                db.session.commit()
+        if isNew:
+            db.session.add(user)
+        db.session.commit()
 
-            message = user.name + " Successfully Added.  <a href='/artists/" + user.name + "'>View Page</a>"
-            flash(message, "success")
-
-        else:
-            user.description = artistForm.artistDescription.data
-            message = "Error: " + user.name + " Already Exists.  <a href='/artists/" + user.name + "'>View Page</a>"
-            flash(message, "error")
-            return render_template('form.html', artistForm=artistForm)
-
+        message = user.name + " Successfully Added.  <a href='/artists/" + user.name + "'>View Page</a>"
+        flash(message, "success")
     return render_template('form.html', artistForm=artistForm)
+
+    '''else:
+        user.description = artistForm.artistDescription.data
+        user.ta
+        message = "Error: " + user.name + " Already Exists.  <a href='/artists/" + user.name + "'>View Page</a>"
+        flash(message, "error")
+        return render_template('form.html', artistForm=artistForm)'''
+
+
+
+
 
 @app.route('/getTags/', methods=['GET'])
 def getTags():
     tags = [tag.name for tag in Tag.query.all()]
     return Response(json.dumps(tags), mimetype='application/json')
 
+
 @app.route('/getArtists/', methods=['GET'])
 def getArtists():
     artists = [artist.name for artist in Artist.query.all()]
     return Response(json.dumps(artists), mimetype='application/json')
+
 
 @app.route('/user/<userName>/')
 def setUser(userName):
@@ -258,9 +268,9 @@ def setUser(userName):
         print("its an artist")
         session['usertype'] = "artist"
         session['artistname'] = userName
-        return redirect('/artists/add/'+userName)
+        return redirect('/artists/' + userName)
     else:
-        print("its a fan")
+        session.pop('artistname', None)
         session['usertype'] = "fan"
         return redirect('/artists/')
 
@@ -283,8 +293,9 @@ def addTag():
         # -1 means duplicate tag
         return json.dumps({'success': True, 'tag_id': -1}), 200, {'ContentType': 'application/json'}
 
-#add track
-@app.route('/tracks/add/', defaults={'artistname':None},methods=['GET', 'POST'])
+
+# add track
+@app.route('/tracks/add/', defaults={'artistname': None}, methods=['GET', 'POST'])
 @app.route('/tracks/add/<artistname>', methods=['GET', 'POST'])
 def addTrack(artistname):
     print(session['artistname'])
@@ -295,7 +306,7 @@ def addTrack(artistname):
     if isinstance(trackTags, str):
         trackTags = trackTags.split(", ")
     if trackForm.validate_on_submit():
-        #user = Artist.query.filter_by(name=trackForm.artistName.data).first()
+        # user = Artist.query.filter_by(name=trackForm.artistName.data).first()
         user = Artist.query.join(Tag.artist).filter_by(name=trackForm.artistName.data).first()
         if user is None:
             message = "Error: " + user.name + " Does Not Exists."
@@ -305,11 +316,10 @@ def addTrack(artistname):
             filename = secure_filename(trackForm.trackURL.data.filename)
             track = Track(
                 name=trackForm.trackName.data,
-                artist_id = user.id,
-                url = filename
+                artist_id=user.id,
+                url=filename
             )
             trackForm.trackURL.data.save(TRACK_FOLDER + filename)
-
 
         for tagName in trackTags:
             tag = Tag.query.filter_by(name=tagName).first()
@@ -319,9 +329,10 @@ def addTrack(artistname):
             db.session.add(track)
             db.session.commit()
 
-        message = track.name + " Successfully Added to "+user.name+".  <a href='/artists/" + user.name + "'>View Page</a>"
+        message = track.name + " Successfully Added to " + user.name + ".  <a href='/artists/" + user.name + "'>View Page</a>"
         flash(message, "success")
     return render_template('addTrack.html', trackForm=trackForm)
+
 
 if __name__ == '__main__':
     manager.run()

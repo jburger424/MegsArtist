@@ -9,9 +9,7 @@
             <div class="active col-md-2 col-md-offset-4"><a href="/artists/add/{{ artistForm.artistName.data }}">Profile</a></div>
             <div class="col-md-2"><a href="/tracks/add/{{ artistForm.artistName.data }}">Music</a></div>
         </div>
-        {% if session['artistname'] %}
-            Your name seems to be <strong>{{session['artistname']}}</strong>.<br/>
-        {% endif %}
+
         <h1>Add an Artist</h1>
     </div>
 

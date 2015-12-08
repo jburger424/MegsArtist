@@ -3,16 +3,35 @@
 {% block title %}MegsArtist{% endblock %}
 
 {% block page_content %}
-<div class="page-header">
-    <h1>Hello Artists!</h1>
-    <ul>
-        {% for artistName in artistNames|sort%}
-            <a href="{{ artistName }}"> <li>{{ artistName }}</li></a>
-        {% endfor %}
-        <b><a href="/artists/add/"><li>Add Artist</li></a></b>
-    </ul>
+    <div class="page-header">
+        <div class="row text-center form-tabs">
+            <div class="active col-md-2 col-md-offset-4"><a href="/artists/">Artists</a></div>
+            <div class="col-md-2"><a href="/tags/">Tags</a></div>
+        </div>
+    </div>
+    <div class="jumbotron">
+    <div class="row">
 
-</div>
+            {% for artistName,artistImage in artistNamesImages %}
+                <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="col-md-8">
+                            <a href="{{ artistName }}">
+                                {{ artistName }}
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <img class="img-responsive img-circle" src="/uploadedImg/{{ artistImage }}">
+                        </div>
+                    </div>
+                </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+    </div>
 
 
 {% endblock %}

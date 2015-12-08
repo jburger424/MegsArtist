@@ -5,44 +5,15 @@
 
 {% block page_content %}
     <div class="page-header">
+            <div class="row text-center form-tabs">
+            <div class="active col-md-2 col-md-offset-4"><a href="/artists/add/{{ artistForm.artistName.data }}">Profile</a></div>
+            <div class="col-md-2"><a href="/tracks/add/{{ artistForm.artistName.data }}">Music</a></div>
+        </div>
+
         <h1>Add an Artist</h1>
     </div>
 
 <form method="POST" enctype="multipart/form-data">
     {{ wtf.quick_form(artistForm)}}
 </form>
-
-
-    <div class="addTag modal fade addTag" tabindex="-1" role="dialog" aria-labelledby="addTag">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="gridSystemModalLabel">Add a Tag</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div class="input-group">
-      <span class="input-group-btn">
-        <button id="addTag" class="btn btn-default" type="button">Add New Tag</button>
-      </span>
-                                        <input id="tagInput" type="text" class="form-control" placeholder="Ex: Soft Rock">
-                                    </div>
-                                    <!-- /input-group -->
-                                </div>
-                                <!-- /.col-lg-6 -->
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-</div>
 {% endblock %}

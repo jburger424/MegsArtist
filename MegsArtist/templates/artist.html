@@ -15,6 +15,7 @@
                                 <div class="col-md-8">
                                     <div class="row">
                                         <h1>{{ artistName }}</h1>
+                                        <a href="/artists/add/{{ artistName }}">Edit</a>
                                     </div>
                                     <div class="row">
                                         {% for tag in tags %}
@@ -36,6 +37,7 @@
                                 <h3>{{ artistDescription }}</h3>
                             </div>
                         </div>
+                        {% if tracks|length > 0 %}
                         <div class="col-md-4">
                             <h2 class="text-center">Tracks</h2>
                             <ul class="list-group" id="tracks">
@@ -50,11 +52,12 @@
                             <button id="next" type="button" class="btn btn-default btn-lg">
                                 <span class="glyphicon glyphicon-step-forward" aria-hidden="true"></span>
                             </button>
-                            <audio id="player" controls="controls">
+                            <audio id="player" preload = "none" controls="controls">
                                 Your browser does not support the <code>audio</code> element.
                                 <source id="player-source" src="#" type="audio/wav">
                             </audio>
                         </div>
+                        {% endif %}
                     </div>
                     <br>
 
@@ -64,26 +67,6 @@
                     </div>
 
                     </ul>
-
-                    <br><br>
-                    {% if songURL|length > 3 %}
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h3 class="panel-title text-center">
-                                    {% if songName|length > 0 %}
-                                        {{ songName }}
-                                    {% else %}
-                                        Unknown Song
-                                    {% endif %}
-                                    - {{ artistName }}</h3>
-                            </div>
-                            <div class="panel-body">
-                                <audio controls autoplay>
-                                    <source src={{ songURL }} type="audio/mpeg">
-                                </audio>
-                            </div>
-                        </div>
-                    {% endif %}
 
                 </div>
                 <b><a href="/tracks/add">

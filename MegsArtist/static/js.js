@@ -38,8 +38,24 @@ jQuery(function ($) { // First argument is the jQuery object
         return tags;
     };
 
+        function getArtists() {
+        var artists = [];
+        $.ajax({
+            type: "GET",
+            url: "/getArtists/",
+            dataType: "json",
+            complete: function (xhr, textStatus) {
+                var oldArtists = xhr.responseJSON;
+                for (var x = 0; x < oldArtists.length; x++) {
+                    artists.push(oldArtists[x]);
+                }
+            }
+        });
+        return artists;
+    };
 
-    $("button#addTag").on("click", function () {
+
+    /*$("button#addTag").on("click", function () {
         var newTag = ($("#tagInput").val());
         var artistName = $("input#artistName").val();
         var data = {
@@ -73,13 +89,17 @@ jQuery(function ($) { // First argument is the jQuery object
             }
 
         })
-    });
+    });*/
 
 //will open addTag modal
     $('select').on('change', function () {
         if (this.value == -1) {
             $('.addTag').modal('show');
         }
+    });
+    $('#artistInput').typeahead(null, {
+        //displayKey: 'num',
+        source:substringMatcher(getArtists())
     });
 
 

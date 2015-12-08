@@ -96,9 +96,9 @@ class Track(db.Model):
 class ArtistForm(Form):
     artistName = StringField('Artist Name*', validators=[Required()])
     # artistTags = SelectMultipleField(u'Tag', coerce=int, validators=[validators.NumberRange(message="Not a Valid Option")])
-    artistTags = StringField('Artist Tags')
+    artistTags = StringField('Artist Tags (Comma Seperated)')
     artistDescription = TextAreaField('Description')
-    artistImage = FileField('Upload an Image')
+    artistImage = FileField('Upload a Profile Image')
     # photo = FileField('Your photo')
     submit = SubmitField('Submit')
 
@@ -152,7 +152,7 @@ def getArtist(artistName):
     if artistObj is None:
         message = artistName + " doesn't exist. Tell us about yourself!"
         flash(message)
-        return redirect('/artists/add/')
+        return redirect('/artists/add/'+artistName)
     else:
         tracks = Track.query.filter_by(artist_id = artistObj.id).all()
         return render_template('artist.html', artistName=artistObj.name,
@@ -184,16 +184,30 @@ def uploaded_song(filename):
                                filename)
 
 
-@app.route('/artists/add/', methods=['GET', 'POST'])
-def addArtist():
-    artistForm = ArtistForm(srf_enabled=False)
-    artistTags = artistForm.artistTags.data
 
+@app.route('/artists/add/', defaults={'artistname':None},methods=['GET', 'POST'])
+@app.route('/artists/add/<artistname>', methods=['GET', 'POST'])
+def addArtist(artistname):
+    artistForm = ArtistForm(srf_enabled=False)
+    if artistname is not None:
+        artist = Artist.query.join(Tag.artist).filter_by(name=artistname).first()
+        artistForm.artistName.data = artistname
+        if artist is not None:
+            tags = []
+            for tag in artist.tags:
+                tags.append(tag.name)
+            tags = ", ".join(tags)
+            artistForm.artistTags.data = tags
+            artistForm.artistDescription.data = artist.description
+    else:
+        print("no artist name")
+    artistTags = artistForm.artistTags.data
     if isinstance(artistTags, str):
         artistTags = artistTags.split(", ")
 
     if artistForm.validate_on_submit():
-        user = Artist.query.filter_by(name=artistForm.artistName.data).first()
+        #user = Artist.query.filter_by(name=artistForm.artistName.data).first()
+        user = Artist.query.join(Tag.artist).filter_by(name=artistname).first()
 
         if user is None:
             user = Artist(
@@ -217,7 +231,8 @@ def addArtist():
             flash(message, "success")
 
         else:
-            message = "Error: " + user.name + " Already Exists.  <a href='/artist/" + user.name + "'>View Page</a>"
+            user.description = artistForm.artistDescription.data
+            message = "Error: " + user.name + " Already Exists.  <a href='/artists/" + user.name + "'>View Page</a>"
             flash(message, "error")
             return render_template('form.html', artistForm=artistForm)
 
@@ -227,6 +242,11 @@ def addArtist():
 def getTags():
     tags = [tag.name for tag in Tag.query.all()]
     return Response(json.dumps(tags), mimetype='application/json')
+
+@app.route('/getArtists/', methods=['GET'])
+def getArtists():
+    artists = [artist.name for artist in Artist.query.all()]
+    return Response(json.dumps(artists), mimetype='application/json')
 
 
 @app.route('/artists/add/tag/', methods=['POST'])
@@ -248,9 +268,12 @@ def addTag():
         return json.dumps({'success': True, 'tag_id': -1}), 200, {'ContentType': 'application/json'}
 
 #add track
-@app.route('/tracks/add/', methods=['GET', 'POST'])
-def addTrack():
+@app.route('/tracks/add/', defaults={'artistname':None},methods=['GET', 'POST'])
+@app.route('/tracks/add/<artistname>', methods=['GET', 'POST'])
+def addTrack(artistname):
     trackForm = TrackForm(csrf_enabled=False)
+    if artistname is not None:
+        trackForm.artistName.data = artistname
     trackTags = trackForm.trackTags.data
     if isinstance(trackTags, str):
         trackTags = trackTags.split(", ")
@@ -279,7 +302,7 @@ def addTrack():
             db.session.add(track)
             db.session.commit()
 
-        message = user.name + " Successfully Added.  <a href='/artists/" + user.name + "'>View Page</a>"
+        message = track.name + " Successfully Added to "+user.name+".  <a href='/artists/" + user.name + "'>View Page</a>"
         flash(message, "success")
     return render_template('addTrack.html', trackForm=trackForm)
 

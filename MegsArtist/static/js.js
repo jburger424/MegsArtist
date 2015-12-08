@@ -104,6 +104,9 @@ jQuery(function ($) { // First argument is the jQuery object
 })
 /*if ( $( "ul#tracks" ).length ) {*/
 
+$("#artistGo").click(function(){
+window.location.href = "/artists/"+$("input#artistInput").val();
+});
 
 function change(URL) {
     console.log("changing to " + URL);

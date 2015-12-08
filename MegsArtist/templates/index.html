@@ -15,10 +15,42 @@
                 <h2>Are you an</h2>
             </div>
             <div class="row">
-                <button type="button" class="btn btn-primary btn-lg">Artist</button>
+                <button type="button" data-toggle="modal" data-target=".artistModal" class="btn btn-primary btn-lg">Artist</button>
                 <span>Or</span>
                 <button type="button" class="btn btn-primary btn-lg">Fan</button>
                 <span>?</span>
+            </div>
+        </div>
+
+    <div class="artistModal modal fade" tabindex="-1" role="dialog" aria-labelledby="artistModal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="gridSystemModalLabel">Band/Artist Name</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+      <span class="input-group-btn">
+        <button id="artistGo" class="btn btn-default" type="button">Go</button>
+      </span>
+                                        <input id="artistInput" type="text" class="form-control" placeholder="Ex: The Beatles">
+                                    </div>
+                                    <!-- /input-group -->
+                                </div>
+                                <!-- /.col-lg-6 -->
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
         </div>
 

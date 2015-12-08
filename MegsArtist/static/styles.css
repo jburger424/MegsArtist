@@ -137,3 +137,9 @@ li.active:before {
 .panel{
     min-height: 100px !Important;
 }
+#prev, #next{
+    width: 49%;
+}
+.list-group{
+    margin-bottom: 0px;
+}

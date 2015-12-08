@@ -9,12 +9,12 @@
             <div class="active col-md-2"><a href="/tags/">Tags</a></div>
         </div>
     </div>
-    <ul>
-        {% for tagName in tagNames|sort %}
-            <a href="{{ tagName }}">
-                <li>{{ tagName }}</li>
-            </a>
-        {% endfor %}
-    </ul>
+    <div class="jumbotron">
+        <div class="row">
+            {% for tagName in tagNames|sort %}
+                <a class="token-link" href="/tags/{{ tagName }}"> {{ tagName }}</a>
+            {% endfor %}
+        </div>
+    </div>
 
 {% endblock %}

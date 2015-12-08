@@ -149,11 +149,12 @@ def artists():
 def getArtist(artistName):
     # artistObj = Artist.query.filter_by(name=artistName).first()
     artistObj = Artist.query.join(Tag.artist).filter_by(name=artistName).first()
-    tracks = Track.query.filter_by(artist_id = artistObj.id).all()
-    print(tracks)
     if artistObj is None:
-        return render_template('artist.html', artistName="null")
+        message = artistName + " doesn't exist. Tell us about yourself!"
+        flash(message)
+        return redirect('/artists/add/')
     else:
+        tracks = Track.query.filter_by(artist_id = artistObj.id).all()
         return render_template('artist.html', artistName=artistObj.name,
                                artistDescription=artistObj.description,
                                artistImageURL=artistObj.image, tags=artistObj.tags,

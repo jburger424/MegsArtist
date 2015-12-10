@@ -117,18 +117,18 @@ li.active:before {
     margin: auto;
 }
 .landing-brand{
-    color: #4c4a4c;
+    color:white;
     font-size: 20px;
     margin-top: 12%;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 300;
+    font-weight: 100;
     /*include pink font stuff*/
 }
 .landing-text{
     font-size:15px;
     margin-top:1%;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 300;
+    font-weight: 200;
 }
 .form-tabs div{
     font-size: 25px;
@@ -187,7 +187,9 @@ body:after {
     z-index: -1;
 }*/
 
-h1{
-    opacity:0.9;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+#form_link{
+    color: white;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 100;
+    font-size: 70%;
 }

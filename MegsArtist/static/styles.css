@@ -120,11 +120,15 @@ li.active:before {
     color: #4c4a4c;
     font-size: 20px;
     margin-top: 10%;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 300;
     /*include pink font stuff*/
 }
 .landing-text{
     font-size:15px;
     margin-top:1%;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 300;
 }
 .form-tabs div{
     font-size: 25px;
@@ -164,7 +168,9 @@ li.active:before {
 body {
     background-image: url("/static/img/Untitled.jpg");
     position:relative;
-    background-size:cover
+    background-size:cover;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 300;
 }
 /*
 body:after {

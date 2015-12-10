@@ -14,10 +14,10 @@ from werkzeug import secure_filename
 
 #IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
 #TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
-IMG_FOLDER = '/home/ubuntu/flaskapp/img/'
-TRACK_FOLDER = '/home/ubuntu/flaskapp/track/'
-#IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
-#TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
+#IMG_FOLDER = '/home/ubuntu/flaskapp/img/'
+#TRACK_FOLDER = '/home/ubuntu/flaskapp/track/'
+IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
+TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 

@@ -94,9 +94,6 @@ li.active:before {
     background-color: #d8d2d1;
   }
 }
-.pinkFont{
-    color:#ff6666;
-}
 /*body{
     background-image:url("img/Untitled.jpg")
 }*/
@@ -165,6 +162,12 @@ li.active:before {
 .btn:hover{
     background-color: rgb(160, 158, 160);
 }
+.token-link{
+    background-color: white;
+    color: grey;
+    font-weight: 200;
+    height: 60%;
+}
 body {
     background-image: url("/static/img/Untitled.jpg");
     position:relative;
@@ -192,4 +195,19 @@ body:after {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     font-size: 70%;
+}
+#navbar_link{
+    color: white;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 100;
+}
+#artist-link{
+    color:grey;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 200;
+}
+#base-footer{
+    color: white;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 100;
 }

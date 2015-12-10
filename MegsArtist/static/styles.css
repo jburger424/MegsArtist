@@ -2,7 +2,7 @@ audio{
     width: 100%;
 }
 #genre_error{
-    color: red;
+    color: #fefffd;
 }
 
 .tt-dataset {
@@ -36,7 +36,7 @@ li.active:before {
 
 /*Lauren's*/
 .navbar-default {
-  background-color: #ff6666 !Important;
+  background-color: #8a888a !Important;
   border-color: #d8d2d1 !Important;
 }
 .navbar-default .navbar-brand {
@@ -117,12 +117,18 @@ li.active:before {
     margin: auto;
 }
 .landing-brand{
-    color: #ff6666;
-    font-size: 120px;
+    color: #4c4a4c;
+    font-size: 20px;
+    margin-top: 12%;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 300;
     /*include pink font stuff*/
 }
 .landing-text{
-    font-size:40px;
+    font-size:15px;
+    margin-top:1%;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 300;
 }
 .form-tabs div{
     font-size: 25px;
@@ -145,23 +151,28 @@ li.active:before {
 }
 .btn-xlarge {
     padding: 18px 28px;
-    font-size: 22px; //change this to your desired size
+    font-size: 22px;
     line-height: normal;
     -webkit-border-radius: 8px;
        -moz-border-radius: 8px;
             border-radius: 8px;
 }
 .btn{
-    background-color: #ff6666;
+    background-color: #fefffd;
     border-color: #676867;
-    color: white;
+    color: grey;
 }
 .btn:hover{
-    background-color: rgb(205, 82, 82);
+    background-color: rgb(160, 158, 160);
 }
 body {
-   position: relative;
+    background-image: url("/static/img/Untitled.jpg");
+    position:relative;
+    background-size:cover;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 300;
 }
+/*
 body:after {
     content : "";
     display: block;
@@ -171,10 +182,10 @@ body:after {
     background-image: url("/static/img/Untitled.jpg");
     background-repeat: no-repeat;
     width: 100%;
-    height: 150%;
-    opacity : 0.3;
+    height: 140%;
+    opacity : 0.7;
     z-index: -1;
-}
+}*/
 
 h1{
     opacity:0.9;

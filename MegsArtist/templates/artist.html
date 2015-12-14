@@ -28,15 +28,13 @@
                                 </div>
                                 <div class="col-md-4">
                                     {% if artistImageURL %}
-                                        <img src=/uploadedImg/{{ artistImageURL }} class="artist-image img-circle
-                                             img-responsive
-                                        ">
+                                        <img src=/uploadedImg/{{ artistImageURL }} class="artist-image img-circle img-responsive">
                                     {% endif %}
                                 </div>
 
                             </div>
                             <div class="row">
-                                <h3>{{ artistDescription }}</h3>
+                                <p>{{ artistDescription }}</p>
                             </div>
                         </div>
                         {% if tracks|length > 0 %}

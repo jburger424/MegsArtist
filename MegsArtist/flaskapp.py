@@ -1,4 +1,5 @@
 import os
+import uuid
 from flask import Flask, render_template, send_from_directory, flash, json, Response, request, redirect, url_for, \
     session
 from flask.ext.script import Manager
@@ -6,15 +7,17 @@ from flask.ext.bootstrap import Bootstrap
 from flask.ext.moment import Moment
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField, TextAreaField
-from flask_wtf.file import FileField
+from flask_wtf.file import FileField, FileAllowed,FileRequired
 from wtforms.validators import Required
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
 
-IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
-TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
-# IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
-# TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
+#IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
+#TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
+#IMG_FOLDER = '/home/ubuntu/flaskapp/img/'
+#TRACK_FOLDER = '/home/ubuntu/flaskapp/track/'
+IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
+TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -97,7 +100,8 @@ class ArtistForm(Form):
     # artistTags = SelectMultipleField(u'Tag', coerce=int, validators=[validators.NumberRange(message="Not a Valid Option")])
     artistTags = StringField('Artist Tags (Comma Seperated)')
     artistDescription = TextAreaField('Description')
-    artistImage = FileField('Upload a Profile Image')
+    artistImage = FileField('Upload a Profile Image',validators=[FileAllowed(['jpg', 'png', 'gif'],
+                                                                 "Supported file extensions: .jpg .png .gif")])
     # photo = FileField('Your photo')
     submit = SubmitField('Submit')
 
@@ -109,7 +113,8 @@ class TrackForm(Form):
     artistName = StringField('Artist Name*', validators=[Required()])
     trackName = StringField('Track Name*', validators=[Required()])
     trackTags = StringField('Track Tags')
-    trackURL = FileField('Upload your track', validators=[Required()])
+    trackURL = FileField('Upload your track', validators=[FileRequired(), FileAllowed(['mp3', 'wav', 'flac'],
+                                                          "Supported file extensions: .mp3 .wav .flac")])
     submit = SubmitField('Submit')
 
     def reset(self):
@@ -211,9 +216,11 @@ def addArtist():
         user.description = artistForm.artistDescription.data
 
         if artistForm.artistImage.has_file():
-            filename = secure_filename(artistForm.artistImage.data.filename)
+            filename = secure_filename(str(uuid.uuid1())+artistForm.artistImage.data.filename)
             artistForm.artistImage.data.save(IMG_FOLDER + filename)
             user.image = filename
+        else:
+            user.image = "no_profile.png"
         for tagName in artistTags:
             tag = Tag.query.filter_by(name=tagName).first()
             if tag is None:
@@ -303,7 +310,7 @@ def addTrack():
             flash(message, "error")
             return render_template('form.html', trackForm=trackForm)
         else:
-            filename = secure_filename(trackForm.trackURL.data.filename)
+            filename = secure_filename(str(uuid.uuid1())+trackForm.trackURL.data.filename)
             track = Track(
                 name=trackForm.trackName.data,
                 artist_id=user.id,

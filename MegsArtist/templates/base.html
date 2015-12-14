@@ -22,7 +22,7 @@
             </button>
 
         </div>
-        <a class="navbar-brand" href="/">Megs<strong>Artist</strong></a>
+        <a id="navbar_link" class="navbar-brand" href="/">Megs<strong>Artist</strong></a>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="navbar-collapse-1">
             {% if session['artistname'] %}
@@ -34,7 +34,7 @@
             {% endif %}
 
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#">Tell Your Friends</a></li>
+                <li><a id="navbar_link" href="#">Tell Your Friends</a></li>
             </ul>
         </div><!-- /.navbar-collapse -->
     </nav>
@@ -51,6 +51,10 @@
         {% endfor %}
 
         {% block page_content %}{% endblock %}
+    </div>
+    <div id="base-footer" class="footer text-center">
+        <p>Site under construction. Copyright &copy; Jonathan Burger, Ruojun Hong, Lauren McGrath, Ithaca College, 2015</p>
+        <p><a href="mailto:rhong1@ithaca.edu">Email Ruo with suggestions: rhong1@ithaca.edu</a>
     </div>
 {% endblock %}
 

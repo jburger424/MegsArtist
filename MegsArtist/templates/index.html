@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "baseIndex.html" %}
 
 {% block title %}MegsArtist{% endblock %}
 
@@ -11,21 +11,22 @@
         <div class="landing-text">Recommend &amp; discover <strong>new music</strong></div>
     </div>
     <div class="row">
-        {% if session['artistname'] %}
-            <div class="row">
-            <a href="/user/{{session['artistname']}}"><h2>Continue as <strong>{{session['artistname']}}</strong>?</h2></a>
-            </div>
-
-        {% endif %}
-        <div class="row">
-            <h2>Are you an
-            <button type="button" data-toggle="modal" data-target=".artistModal" class="btn btn-primary btn-xlarge">Artist
+            <h2 class="landing-text">Are you an
+            <button type="button" data-toggle="modal" data-target=".artistModal" class="btn">Artist
             </button>
             or
-            <a href="/user/fan/" ><button type="button"  class="btn btn-primary btn-xlarge">Fan</button></a>
+            <a href="/user/fan/" ><button type="button"  class="btn">Fan</button></a>
             ?
             </h2>
         </div>
+    <div class="landing-text">
+        {% if session['artistname'] %}
+            <div>
+            <a class="landing-text" href="/user/{{session['artistname']}}"><h2 class="landing-text">Continue as <strong>{{session['artistname']}}</strong>?</h2></a>
+            </div>
+
+        {% endif %}
+
     </div>
 
     <div class="artistModal modal fade" tabindex="-1" role="dialog" aria-labelledby="artistModal">

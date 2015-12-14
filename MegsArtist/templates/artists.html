@@ -5,8 +5,8 @@
 {% block page_content %}
     <div class="page-header">
         <div class="row text-center form-tabs">
-            <div class="active col-md-2 col-md-offset-4"><a href="/artists/">Artists</a></div>
-            <div class="col-md-2"><a href="/tags/">Tags</a></div>
+            <div class="active col-md-2 col-md-offset-4"><a id="form_link" href="/artists/">Artists</a></div>
+            <div class="col-md-2"><a id="form_link" href="/tags/">Tags</a></div>
         </div>
     </div>
     <div class="jumbotron">
@@ -17,7 +17,7 @@
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <div class="col-md-8">
-                            <a href="{{ artistName }}">
+                            <a id="artist-link" href="{{ artistName }}">
                                 {{ artistName }}
                             </a>
                         </div>

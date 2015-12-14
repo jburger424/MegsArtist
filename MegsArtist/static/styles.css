@@ -116,7 +116,7 @@ li.active:before {
 .landing-brand{
     color:white;
     font-size: 20px;
-    margin-top: 12%;
+    margin-top: 120px;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     /*include pink font stuff*/
@@ -168,9 +168,12 @@ li.active:before {
     font-weight: 200;
     height: 60%;
 }
-body {
+.jumbotron{
+    height: 400px;
+    overflow: scroll;
+}
+body{
     background-image: url("/static/img/Untitled.jpg");
-    position:relative;
     background-size:cover;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 300;

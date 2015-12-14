@@ -14,10 +14,10 @@ from werkzeug import secure_filename
 
 #IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
 #TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
-#IMG_FOLDER = '/home/ubuntu/flaskapp/img/'
-#TRACK_FOLDER = '/home/ubuntu/flaskapp/track/'
-IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
-TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
+IMG_FOLDER = '/home/ubuntu/flaskapp/img/'
+TRACK_FOLDER = '/home/ubuntu/flaskapp/track/'
+#IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
+#TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -129,7 +129,7 @@ def page_not_found(e):
 @app.errorhandler(500)
 def internal_server_error(e):
     print(e)
-    return render_template('500.html', error=e), 500
+    return render_template('500.html'), 500
 
 
 @app.route('/', methods=['GET', 'POST'])

@@ -10,8 +10,7 @@ from wtforms import StringField, SubmitField, TextAreaField, PasswordField, vali
 from flask_wtf.file import FileField, FileAllowed,FileRequired
 from wtforms.validators import Required
 from flask.ext.sqlalchemy import SQLAlchemy
-from werkzeug import secure_filename
-from flask.ext.login import LoginManager, UserMixin, login_required
+from werkzeug import secure_filename, generate_password_hash, check_password_hash
 
 IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
 TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
@@ -36,9 +35,6 @@ bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
 
-login_manager = LoginManager()
-login_manager.init_app(app)
-
 artist_to_tag = db.Table('artist_to_tag',
                          db.Column('artist_id', db.Integer, db.ForeignKey('artist.id')),
                          db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
@@ -50,6 +46,29 @@ track_to_tag = db.Table('track_to_tag',
                         db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
                         db.PrimaryKeyConstraint('track_id', 'tag_id')
                         )
+
+class User(db.Model):
+    # __tablename__ = 'artist'
+    id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(64), index=True)
+    last_name = db.Column(db.String(64), index=True)
+    email = db.Column(db.String(64), unique=True, index=True)
+    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
+    password_hash = db.Column(db.String(128))
+
+
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+    def __repr__(self):
+        return '<User %r>' % self.name
 
 
 # initiates Tag table
@@ -83,7 +102,6 @@ class Artist(db.Model):
 
     def __repr__(self):
         return '<Artist %r>' % self.name
-
 
 # initiates Track table
 class Track(db.Model):
@@ -125,6 +143,8 @@ class TrackForm(Form):
         self.trackName.data = self.trackURL.data = ""
 
 class RegistrationForm(Form):
+    firstName = StringField('First Name*', validators=[Required()])
+    lastName = StringField('Last Name*', validators=[Required()])
     artistName = StringField('Artist/Band Name*', validators=[Required()])
     email = StringField('Email*', validators=[Required()]) #include email validation
     password = PasswordField('Password', [
@@ -158,7 +178,42 @@ def index():
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
-    return render_template('register.html', registrationForm=RegistrationForm())
+    registrationForm=RegistrationForm()
+    if registrationForm.validate_on_submit():
+        artistName = registrationForm.artistName.data
+        email = registrationForm.email.data
+
+        artistCheck = Artist.query.filter_by(name=artistName).first()
+        ##todo, check that email is unique
+        emailCheck = User.query.filter_by(email=email).first()
+        if artistCheck is None and emailCheck is None: #this is checking that the artist doesn't yet exist, if it does it will give them an error
+            artist = Artist(name=artistName)
+            db.session.add(artist)
+            db.session.commit()
+            user = User(
+                first_name=registrationForm.firstName.data,
+                last_name=registrationForm.lastName.data,
+                email=registrationForm.email.data,
+                password = registrationForm.password.data,
+                #Random TODO add attribute to artist to say if initialized, won't be public until true
+                artist_id = artist.id
+            )
+            db.session.add(user)
+            db.session.commit()
+            flash("User successfully added")
+        else:
+            if emailCheck is not None:
+                message = "Error: "+email+ " Has Already Been Registered.  <a href='/login/" + artistName + "'>Login?</a>"
+                flash(message,"error") #TODO
+                registrationForm.email.data = ""
+            if artistCheck is not None:
+                message = "Error: "+artistName + " Already Exists.  <a href='/artists/" + artistName + "'>View Page</a>"
+                flash(message,"error") #TODO
+                registrationForm.artistName.data = ""
+
+
+
+    return render_template('register.html', registrationForm=registrationForm)
 
 
 @app.route('/tags/')

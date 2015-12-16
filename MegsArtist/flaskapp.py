@@ -6,11 +6,12 @@ from flask.ext.script import Manager
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.moment import Moment
 from flask.ext.wtf import Form
-from wtforms import StringField, SubmitField, TextAreaField, PasswordField, validators
+from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, validators
 from flask_wtf.file import FileField, FileAllowed,FileRequired
 from wtforms.validators import Required
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename, generate_password_hash, check_password_hash
+from flask.ext.login import LoginManager, UserMixin, AnonymousUserMixin, login_required, login_user, logout_user
 
 IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
 TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
@@ -35,6 +36,15 @@ bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
 artist_to_tag = db.Table('artist_to_tag',
                          db.Column('artist_id', db.Integer, db.ForeignKey('artist.id')),
                          db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
@@ -47,7 +57,7 @@ track_to_tag = db.Table('track_to_tag',
                         db.PrimaryKeyConstraint('track_id', 'tag_id')
                         )
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     # __tablename__ = 'artist'
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(64), index=True)
@@ -71,6 +81,15 @@ class User(db.Model):
         return '<User %r>' % self.name
 
 
+class AnonymousUser(AnonymousUserMixin):
+    def can(self, permissions):
+        return False
+
+    def is_administrator(self):
+        return False
+
+login_manager.anonymous_user = AnonymousUser
+
 # initiates Tag table
 class Tag(db.Model):
     # __tablename__ = 'tag'
@@ -91,6 +110,9 @@ class Tag(db.Model):
 # Get Artist object by name, with Tags
 
 # initiates Artist table
+
+
+
 class Artist(db.Model):
     # __tablename__ = 'artist'
     id = db.Column(db.Integer, primary_key=True)
@@ -99,6 +121,7 @@ class Artist(db.Model):
     image = db.Column(db.String(264), unique=False, index=True)
     tags = db.relationship('Tag', secondary=artist_to_tag,
                            backref=db.backref('artist', lazy='dynamic'))
+    users = db.relationship('User', backref='artist', lazy='dynamic')
 
     def __repr__(self):
         return '<Artist %r>' % self.name
@@ -159,6 +182,17 @@ class RegistrationForm(Form):
         self.artistName.data = self.email.data = self.password.data = self.confirm.data = ""
 
 
+class LoginForm(Form):
+    email = StringField('Email*', validators=[Required()]) #include email validation
+    password = PasswordField('Password', [validators.Required()])
+    remember_me = BooleanField('Remember Me')
+    submit = SubmitField('Submit')
+
+    def reset(self):
+        self.email.data = self.password.data = ""
+
+
+
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -175,6 +209,12 @@ def internal_server_error(e):
 def index():
     return render_template('index.html')
 
+@app.route('/logout/')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.')
+    return render_template('index.html')
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
@@ -215,6 +255,16 @@ def register():
 
     return render_template('register.html', registrationForm=registrationForm)
 
+@app.route('/login/', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is not None and user.verify_password(form.password.data):
+            login_user(user, form.remember_me.data)
+            return redirect(request.args.get('next') or url_for('index'))
+        flash('Invalid username or password.')
+    return render_template('login.html', form=form)
 
 @app.route('/tags/')
 def tags():

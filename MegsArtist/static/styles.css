@@ -76,7 +76,9 @@ li.active:before {
   border-color: #ffffff;
 }
 .navbar-default .navbar-link {
-  color: #ffffff;
+    color: white;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 100;
 }
 .navbar-default .navbar-link:hover {
   color: #fdfdfd;

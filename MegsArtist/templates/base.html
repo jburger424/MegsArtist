@@ -25,16 +25,34 @@
         <a id="navbar_link" class="navbar-brand" href="/">Megs<strong>Artist</strong></a>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="navbar-collapse-1">
-            {% if session['artistname'] %}
+
+            {% if current_user.is_authenticated %}
                 <ul class="nav navbar-nav navbar-left">
-                    <li><a href="/artists/{{ session['artistname'] }}">
-                        <strong>{{ session['artistname'] }}</strong>
-                    </a></li>
+                <li>
+                    <a class="navbar-link" href="/artists/{{ current_user.artist.name }}">
+                        {{ current_user.artist.name }}
+                    </a>
+                </li>
+                </ul>
+                {% else %}
+                <ul class="nav navbar-nav navbar-left">
+                    Browsing as Fan
                 </ul>
             {% endif %}
 
             <ul class="nav navbar-nav navbar-right">
-                <li><a id="navbar_link" href="#">Tell Your Friends</a></li>
+                <li>
+                    {% if current_user.is_authenticated %}
+                        <a class="navbar-link" href="/logout/">
+                            Log Out
+                        </a>
+                    {% else %}
+                        <a class="navbar-link" href="/login/">
+                            Log In
+                        </a>
+                    {% endif %}
+                </li>
+
             </ul>
         </div><!-- /.navbar-collapse -->
     </nav>

@@ -116,12 +116,15 @@ class Tag(db.Model):
 class Artist(db.Model):
     # __tablename__ = 'artist'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True, index=True)
-    description = db.Column(db.String(264), unique=False, index=True)
-    image = db.Column(db.String(264), unique=False, index=True)
+    name = db.Column(db.String(64), unique=True)
+    description = db.Column(db.String(264), unique=False)
+    image = db.Column(db.String(264), unique=False)
     tags = db.relationship('Tag', secondary=artist_to_tag,
                            backref=db.backref('artist', lazy='dynamic'))
     users = db.relationship('User', backref='artist', lazy='dynamic')
+
+    def isInitialized(self):
+        return len(self.description) > 0
 
     def __repr__(self):
         return '<Artist %r>' % self.name
@@ -130,9 +133,9 @@ class Artist(db.Model):
 class Track(db.Model):
     # __tablename__ = 'track'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True, index=True)
+    name = db.Column(db.String(64), unique=False)
     artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
-    url = db.Column(db.String(264), unique=False, index=True)
+    url = db.Column(db.String(264), unique=False)
     tags = db.relationship('Tag', secondary=track_to_tag,
                            backref=db.backref('track', lazy='dynamic'))
 

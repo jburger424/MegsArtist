@@ -6,18 +6,19 @@ from flask.ext.script import Manager
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.moment import Moment
 from flask.ext.wtf import Form
-from wtforms import StringField, SubmitField, TextAreaField
+from wtforms import StringField, SubmitField, TextAreaField, PasswordField, validators
 from flask_wtf.file import FileField, FileAllowed,FileRequired
 from wtforms.validators import Required
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
+from flask.ext.login import LoginManager, UserMixin, login_required
 
-#IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
-#TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
+IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
+TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
 #IMG_FOLDER = '/home/ubuntu/flaskapp/img/'
 #TRACK_FOLDER = '/home/ubuntu/flaskapp/track/'
-IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
-TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
+#IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
+#TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -34,6 +35,9 @@ manager = Manager(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 artist_to_tag = db.Table('artist_to_tag',
                          db.Column('artist_id', db.Integer, db.ForeignKey('artist.id')),
@@ -120,6 +124,21 @@ class TrackForm(Form):
     def reset(self):
         self.trackName.data = self.trackURL.data = ""
 
+class RegistrationForm(Form):
+    artistName = StringField('Artist/Band Name*', validators=[Required()])
+    email = StringField('Email*', validators=[Required()]) #include email validation
+    password = PasswordField('Password', [
+        validators.Required(),
+        validators.EqualTo('confirm', message='Passwords must match')
+    ])
+    confirm = PasswordField('Repeat Password')
+
+    submit = SubmitField('Submit')
+
+    def reset(self):
+        self.artistName.data = self.email.data = self.password.data = self.confirm.data = ""
+
+
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -135,6 +154,11 @@ def internal_server_error(e):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
+
+
+@app.route('/register/', methods=['GET', 'POST'])
+def register():
+    return render_template('register.html', registrationForm=RegistrationForm())
 
 
 @app.route('/tags/')
@@ -247,19 +271,6 @@ def addArtist():
             artistForm.artistTags.data = tags
             artistForm.artistDescription.data = artist.description
     return render_template('form.html', artistForm=artistForm)
-
-    '''if artist is not None: #if it already exists in database
-        isNew = False
-        artistForm.artistName.default = session['artistname']
-        tags = []
-        for tag in artist.tags:
-            tags.append(tag.name)
-        tags = ", ".join(tags)
-        artistForm.artistTags.default = tags
-        artistForm.artistDescription.default = artist.description
-    else:
-        print("doesn't exist")'''
-
 
 
 

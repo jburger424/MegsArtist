@@ -219,3 +219,10 @@ body:after {
 .loginModal .modal-body #submit, #submit{
     width: 100%;
 }
+.panel.panel-default.artist-highlight{
+    background-color: lightcyan;
+}
+.panel.panel-default.artist-highlight a#artist-link{
+    color: black;
+    font-weight: bold;
+}

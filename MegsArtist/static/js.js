@@ -206,9 +206,8 @@ $(window).load(function () {
         });
         console.log("length: " + $('ul#tracks li').length);
         var randomTrack = Math.floor((Math.random() * $('ul#tracks li').length) + 1);
-        change($("ul li.list-group-item:nth-child(" + randomTrack + ")").attr("data-track-url"));
-        /*var randomTrack = Math.floor((Math.random() * $('ul#tracks li').length) + 1);
-        change($("ul li.list-group-item:nth-child(" + randomTrack + ")").attr("data-track-url"));*/
+        //change($("ul li.list-group-item:nth-child(" + randomTrack + ")").attr("data-track-url"));
+        //just disabled for testing
     }
 
 });

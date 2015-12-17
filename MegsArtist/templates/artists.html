@@ -14,7 +14,11 @@
 
             {% for artistName,artistImage in artistNamesImages %}
                 <div class="col-md-4">
-                <div class="panel panel-default">
+                    {% if current_user.is_authenticated and current_user.artist.name==artistName %}
+                        <div class="panel panel-default artist-highlight">
+                    {% else %}
+                        <div class="panel panel-default">
+                            {% endif %}
                     <div class="panel-body">
                         <div class="col-md-8">
                             <a id="artist-link" href="{{ artistName }}">

@@ -144,7 +144,7 @@ class Track(db.Model):
 
 
 class ArtistForm(Form):
-    artistName = StringField('Artist Name*', validators=[Required()])
+    #artistName = StringField('Artist Name*', validators=[Required()])
     # artistTags = SelectMultipleField(u'Tag', coerce=int, validators=[validators.NumberRange(message="Not a Valid Option")])
     artistTags = StringField('Artist Tags (Comma Seperated)')
     artistDescription = TextAreaField('Description')
@@ -154,11 +154,10 @@ class ArtistForm(Form):
     submit = SubmitField('Submit')
 
     def reset(self):
-        self.artistName.data = self.artistDescription.data = self.artistImage.data = ""
-
+        self.artistDescription.data = self.artistImage.data = ""
 
 class TrackForm(Form):
-    artistName = StringField('Artist Name*', validators=[Required()])
+    #artistName = StringField('Artist Name*', validators=[Required()])
     trackName = StringField('Track Name*', validators=[Required()])
     trackTags = StringField('Track Tags')
     trackURL = FileField('Upload your track', validators=[FileRequired(), FileAllowed(['mp3', 'wav', 'flac'],
@@ -194,6 +193,11 @@ class LoginForm(Form):
     def reset(self):
         self.email.data = self.password.data = ""
 
+@app.errorhandler(401)
+def page_not_found(e):
+    form = LoginForm()
+    flash("Sorry, you have to be logged in to do that")
+    return render_template('login.html',form=form), 401
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -258,6 +262,8 @@ def register():
             db.session.add(user)
             db.session.commit()
             flash("User successfully added")
+            login_user(user)
+            return redirect('artists/add/')
         else:
             if emailCheck is not None:
                 message = "Error: "+email+ " Has Already Been Registered.  <a href='/login/" + artistName + "'>Login?</a>"
@@ -267,9 +273,6 @@ def register():
                 message = "Error: "+artistName + " Already Exists.  <a href='/artists/" + artistName + "'>View Page</a>"
                 flash(message,"error") #TODO
                 registrationForm.artistName.data = ""
-
-
-
     return render_template('register.html', registrationForm=registrationForm)
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -303,16 +306,10 @@ def artists():
 
 @app.route('/artists/<artistName>')
 def getArtist(artistName):
-    # artistObj = Artist.query.filter_by(name=artistName).first()
     artistObj = Artist.query.join(Tag.artist).filter_by(name=artistName).first()
     if artistObj is None:
         artistObj = Artist.query.filter_by(name=artistName).first() #this is a workaround to fix the fact that our first method of querying will return none if no tags
-    if artistObj is None:
-        '''if session['usertype']=="artist":
-            message = artistName + " doesn't exist. Tell us about yourself!"
-            flash(message)
-            return redirect('/artists/add/')
-        else:'''
+    if artistObj is None or not artistObj.isInitialized():
         return render_template('artist.html', artistName="null")
     else:
         tracks = Track.query.filter_by(artist_id=artistObj.id).all()
@@ -325,9 +322,10 @@ def getArtist(artistName):
 
 @app.route('/tags/<tagName>')
 def getTag(tagName):
-    # artistObj = Artist.query.filter_by(name=artistName).first()
     tagObj = Tag.query.join(Artist.tags).filter_by(name=tagName).first()
-    print(tagObj.artists)
+    if tagObj is None:
+        tagObj = Tag.query.filter_by(name=tagName).first()
+        return render_template('tag.html', tagName=tagObj.name)
     if tagObj is None:
         return render_template('tag.html', tagName="null")
     else:
@@ -347,65 +345,45 @@ def uploaded_song(filename):
 
 
 
-#@app.route('/artists/add/', defaults={'artistname': None}, methods=['GET', 'POST'])
-#@app.route('/artists/add/<artistname>', methods=['GET', 'POST'])
 @app.route('/artists/add/', methods=['GET', 'POST'])
+@login_required
 def addArtist():
-    isNew = True
     artistForm = ArtistForm(srf_enabled=False)
-    artist = Artist.query.join(Tag.artist).filter_by(name=current_user.artist.name).first()
-    if artist is None:
-        artist = Artist.query.filter_by(name=current_user.artist.name).first()
+    userArtist = current_user.artist
     if artistForm.validate_on_submit():
-        artistTags = artistForm.artistTags.data
-        if isinstance(artistTags, str):
-            artistTags = artistTags.split(", ")
-        # user = Artist.query.filter_by(name=artistForm.artistName.data).first()
-        user = Artist.query.join(Tag.artist).filter_by(name=current_user.artist.name).first()
-        if user is None:
-            user = Artist.query.filter_by(name=current_user.artist.name).first() #weird workaround
-        if user is None:
-            user = Artist(
-                name=artistForm.artistName.data
-            )
+        tagsText = artistForm.artistTags.data
+        if isinstance(tagsText, str):
+            formTags = tagsText.split(", ")
 
-        user.description = artistForm.artistDescription.data
-
+        userArtist.description = artistForm.artistDescription.data
         if artistForm.artistImage.has_file():
             filename = secure_filename(str(uuid.uuid1())+artistForm.artistImage.data.filename)
             artistForm.artistImage.data.save(IMG_FOLDER + filename)
-            user.image = filename
-        else:
-            user.image = "no_profile.png"
-        for tagName in artistTags:
+            userArtist.image = filename
+        if len(userArtist.image)==0:
+            userArtist.image = "no_profile.png"
+        for tagName in formTags:
             tag = Tag.query.filter_by(name=tagName).first()
             if tag is None:
                 tag = Tag(name=tagName)
-            if not tag in user.tags:
-                user.tags.append(tag)
-        if isNew:
-            db.session.add(user)
+            if tag not in userArtist.tags:
+                userArtist.tags.append(tag)
+
         db.session.commit()
 
-        message = user.name + " Successfully Added.  <a href='/artists/" + user.name + "'>View Page</a>"
+        message = "Profile Successfully Modified"
         flash(message, "success")
-        print("did validate")
-
+        return redirect('/artists/'+current_user.artist.name)
     else:
         print("didn't validate")
-        artistForm.artistName.data = current_user.artist.name
-        if artist is not None:
+        if userArtist is not None:
             tags = []
-            for tag in artist.tags:
+            for tag in userArtist.tags:
                 tags.append(tag.name)
             tags = ", ".join(tags)
             artistForm.artistTags.data = tags
-            artistForm.artistDescription.data = artist.description
+            artistForm.artistDescription.data = userArtist.description
     return render_template('form.html', artistForm=artistForm)
-
-
-
-
 
 
 @app.route('/getTags/', methods=['GET'])
@@ -445,26 +423,22 @@ def addTag():
 def addTrack():
     #print(session['artistname'])
     trackForm = TrackForm(csrf_enabled=False)
-    artistname = current_user.artist.name
-    if artistname is not None:
-        trackForm.artistName.data = artistname
+    artistName = current_user.artist.name
     trackTags = trackForm.trackTags.data
     if isinstance(trackTags, str):
         trackTags = trackTags.split(", ")
     if trackForm.validate_on_submit():
-        # user = Artist.query.filter_by(name=trackForm.artistName.data).first()
-        user = Artist.query.join(Tag.artist).filter_by(name=trackForm.artistName.data).first()
-        if user is None:
-            user = Artist.query.filter_by(name=current_user.artist.name).first()
-        if user is None:
-            message = "Error: " + user.name + " Does Not Exists."
+        userArtist = current_user.artist
+        if userArtist is None:
+            print("This shouldn't happen, should only have access if logged in")
+            message = "Error: " + userArtist.name + " Does Not Exists."
             flash(message, "error")
             return render_template('form.html', trackForm=trackForm)
         else:
             filename = secure_filename(str(uuid.uuid1())+trackForm.trackURL.data.filename)
             track = Track(
                 name=trackForm.trackName.data,
-                artist_id=user.id,
+                artist_id=userArtist.id,
                 url=filename
             )
             trackForm.trackURL.data.save(TRACK_FOLDER + filename)
@@ -477,7 +451,7 @@ def addTrack():
             db.session.add(track)
             db.session.commit()
 
-        message = track.name + " Successfully Added to " + user.name + ".  <a href='/artists/" + user.name + "'>View Page</a>"
+        message = track.name + " Successfully Added to " + userArtist.name + ".  <a href='/artists/" + userArtist.name + "'>View Page</a>"
         flash(message, "success")
     return render_template('addTrack.html', trackForm=trackForm)
 

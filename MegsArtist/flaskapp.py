@@ -142,6 +142,17 @@ class Track(db.Model):
     def __repr__(self):
         return '<Track %r>' % self.name
 
+class Event(db.Model):
+    __tablename__ = 'event'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True, index=True)
+    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
+    address = db.Column(db.String(264), unique=False, index=True)
+    city = db.Column(db.String(64), unique=False, index=True)
+
+    def __repr__(self):
+        return '<Event %r>' % self.name
+
 
 class ArtistForm(Form):
     #artistName = StringField('Artist Name*', validators=[Required()])
@@ -166,6 +177,15 @@ class TrackForm(Form):
 
     def reset(self):
         self.trackName.data = self.trackURL.data = ""
+
+class EventForm(Form):
+     eventName = StringField('Event Name*', validators=[Required()])
+     eventAddress = StringField('Event Address*', validators=[Required()])
+     eventCity = StringField('Event City*', validators=[Required()])
+
+     submit = SubmitField('Submit')
+     def reset(self):
+        self.eventName.data = self.eventAddress.data = self.eventCity.data= ""
 
 class RegistrationForm(Form):
     firstName = StringField('First Name*', validators=[Required()])
@@ -313,10 +333,11 @@ def getArtist(artistName):
         return render_template('artist.html', artistName="null")
     else:
         tracks = Track.query.filter_by(artist_id=artistObj.id).all()
+        events = Event.query.filter_by(artist_id=artistObj.id).all()
         return render_template('artist.html', artistName=artistObj.name,
                                artistDescription=artistObj.description,
                                artistImageURL=artistObj.image, tags=artistObj.tags,
-                               tracks=tracks
+                               tracks=tracks, events = events
                                )
 
 
@@ -416,7 +437,23 @@ def addTag():
         # -1 means duplicate tag
         return json.dumps({'success': True, 'tag_id': -1}), 200, {'ContentType': 'application/json'}
 
-
+@app.route('/events/add/', methods=['GET', 'POST'])
+@login_required
+def addEvent():
+    userArtist = current_user.artist
+    eventForm = EventForm(csrf_enabled=False)
+    if eventForm.validate_on_submit():
+        event = Event(
+            name=eventForm.eventName.data,
+            artist_id=userArtist.id,
+            address = eventForm.eventAddress.data,
+            city = eventForm.eventCity.data
+        )
+        db.session.add(event)
+        db.session.commit
+        message = event.name + " Successfully Added to " + userArtist.name + ".  <a href='/artists/" + userArtist.name + "'>View Page</a>"
+        flash(message, "success")
+    return render_template('addEvent.html', eventForm=eventForm);
 
 @app.route('/tracks/add/', methods=['GET', 'POST'])
 @login_required

@@ -124,7 +124,7 @@ class Artist(db.Model):
     users = db.relationship('User', backref='artist', lazy='dynamic')
 
     def isInitialized(self):
-        return len(self.description) > 0
+        return self.description is not None
 
     def __repr__(self):
         return '<Artist %r>' % self.name
@@ -209,16 +209,21 @@ def internal_server_error(e):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    print(current_user.is_authenticated)
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user is not None and user.verify_password(form.password.data):
-            login_user(user, form.remember_me.data)
-            #return redirect(request.args.get('next') or url_for('index'))
-            return render_template('index.html', form=form)
-        flash('Invalid username or password.')
-    return render_template('index.html', form=form)
+    if current_user.is_authenticated:
+        #return redirect("/artists/"+current_user.artist.name)
+        client = app.test_client()
+        response = client.get('/artists/'+current_user.artist.name, headers=list(request.headers))
+        return response
+    else:
+        form = LoginForm()
+        if form.validate_on_submit():
+            user = User.query.filter_by(email=form.email.data).first()
+            if user is not None and user.verify_password(form.password.data):
+                login_user(user, form.remember_me.data)
+                #return redirect(request.args.get('next') or url_for('index'))
+                return render_template('index.html', form=form)
+            flash('Invalid username or password.')
+        return render_template('index.html', form=form)
 
 @app.route('/logout/')
 @login_required
@@ -348,13 +353,17 @@ def uploaded_song(filename):
 def addArtist():
     isNew = True
     artistForm = ArtistForm(srf_enabled=False)
-    artist = Artist.query.join(Tag.artist).filter_by(name=session['artistname']).first()
+    artist = Artist.query.join(Tag.artist).filter_by(name=current_user.artist.name).first()
+    if artist is None:
+        artist = Artist.query.filter_by(name=current_user.artist.name).first()
     if artistForm.validate_on_submit():
         artistTags = artistForm.artistTags.data
         if isinstance(artistTags, str):
             artistTags = artistTags.split(", ")
         # user = Artist.query.filter_by(name=artistForm.artistName.data).first()
-        user = Artist.query.join(Tag.artist).filter_by(name=session['artistname']).first()
+        user = Artist.query.join(Tag.artist).filter_by(name=current_user.artist.name).first()
+        if user is None:
+            user = Artist.query.filter_by(name=current_user.artist.name).first() #weird workaround
         if user is None:
             user = Artist(
                 name=artistForm.artistName.data
@@ -384,7 +393,7 @@ def addArtist():
 
     else:
         print("didn't validate")
-        artistForm.artistName.data = session['artistname']
+        artistForm.artistName.data = current_user.artist.name
         if artist is not None:
             tags = []
             for tag in artist.tags:
@@ -411,19 +420,6 @@ def getArtists():
     return Response(json.dumps(artists), mimetype='application/json')
 
 
-@app.route('/user/<userName>/')
-def setUser(userName):
-    if userName != "fan":
-        session['usertype'] = "artist"
-        session['artistname'] = userName
-        artist = Artist.query.join(Tag.artist).filter_by(name=userName).first()
-        return redirect('/artists/' + userName)
-    else:
-        session.pop('artistname', None)
-        session['usertype'] = "fan"
-        return redirect('/artists/')
-
-
 @app.route('/artists/add/tag/', methods=['POST'])
 # doesn't render a page, only used for AJAX post
 def addTag():
@@ -443,12 +439,13 @@ def addTag():
         return json.dumps({'success': True, 'tag_id': -1}), 200, {'ContentType': 'application/json'}
 
 
-# add track
-@app.route('/tracks/add/', defaults={'artistname': None}, methods=['GET', 'POST'])
-@app.route('/tracks/add/<artistname>', methods=['GET', 'POST'])
-def addTrack(artistname):
-    print(session['artistname'])
+
+@app.route('/tracks/add/', methods=['GET', 'POST'])
+@login_required
+def addTrack():
+    #print(session['artistname'])
     trackForm = TrackForm(csrf_enabled=False)
+    artistname = current_user.artist.name
     if artistname is not None:
         trackForm.artistName.data = artistname
     trackTags = trackForm.trackTags.data
@@ -457,6 +454,8 @@ def addTrack(artistname):
     if trackForm.validate_on_submit():
         # user = Artist.query.filter_by(name=trackForm.artistName.data).first()
         user = Artist.query.join(Tag.artist).filter_by(name=trackForm.artistName.data).first()
+        if user is None:
+            user = Artist.query.filter_by(name=current_user.artist.name).first()
         if user is None:
             message = "Error: " + user.name + " Does Not Exists."
             flash(message, "error")

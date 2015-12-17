@@ -213,3 +213,9 @@ body:after {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
 }
+.loginModal .modal-body{
+    text-align: left;
+}
+.loginModal .modal-body #submit, #submit{
+    width: 100%;
+}

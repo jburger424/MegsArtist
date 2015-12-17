@@ -11,7 +11,7 @@ from flask_wtf.file import FileField, FileAllowed,FileRequired
 from wtforms.validators import Required
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename, generate_password_hash, check_password_hash
-from flask.ext.login import LoginManager, UserMixin, AnonymousUserMixin, login_required, login_user, logout_user
+from flask.ext.login import LoginManager, UserMixin, AnonymousUserMixin, login_required, login_user, logout_user, current_user
 
 IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
 TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
@@ -195,8 +195,6 @@ class LoginForm(Form):
         self.email.data = self.password.data = ""
 
 
-
-
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
@@ -208,16 +206,27 @@ def internal_server_error(e):
     return render_template('500.html', error=e), 500
 
 
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    print(current_user.is_authenticated)
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is not None and user.verify_password(form.password.data):
+            login_user(user, form.remember_me.data)
+            #return redirect(request.args.get('next') or url_for('index'))
+            return render_template('index.html', form=form)
+        flash('Invalid username or password.')
+    return render_template('index.html', form=form)
 
 @app.route('/logout/')
 @login_required
 def logout():
     logout_user()
     flash('You have been logged out.')
-    return render_template('index.html')
+    #return render_template('index.html')
+    return redirect('/')
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
@@ -265,7 +274,10 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
-            return redirect(request.args.get('next') or url_for('index'))
+            flash("Successfully Logged In")
+            #return render_template('index.html', form=form)
+            return redirect('/artists/'+current_user.artist.name)
+            #return redirect(request.args.get('next') or url_for('index'))
         flash('Invalid username or password.')
     return render_template('login.html', form=form)
 
@@ -289,12 +301,14 @@ def getArtist(artistName):
     # artistObj = Artist.query.filter_by(name=artistName).first()
     artistObj = Artist.query.join(Tag.artist).filter_by(name=artistName).first()
     if artistObj is None:
-        if session['usertype']=="artist":
+        artistObj = Artist.query.filter_by(name=artistName).first() #this is a workaround to fix the fact that our first method of querying will return none if no tags
+    if artistObj is None:
+        '''if session['usertype']=="artist":
             message = artistName + " doesn't exist. Tell us about yourself!"
             flash(message)
             return redirect('/artists/add/')
-        else:
-            return render_template('artist.html', artistName="null")
+        else:'''
+        return render_template('artist.html', artistName="null")
     else:
         tracks = Track.query.filter_by(artist_id=artistObj.id).all()
         return render_template('artist.html', artistName=artistObj.name,

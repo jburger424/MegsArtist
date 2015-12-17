@@ -132,10 +132,6 @@ $("input#artistInput").keypress(function(event) {
         window.location.href = "/user/"+$("input#artistInput").val();
     }
 });
-$("#artistGo").click(function(){
-window.location.href = "/user/"+$("input#artistInput").val();
-});
-
 function change(URL) {
     console.log("changing to " + URL);
     $("ul li.active").toggleClass("active", false);

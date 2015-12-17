@@ -14,10 +14,10 @@ from werkzeug import secure_filename
 
 #IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
 #TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
-IMG_FOLDER = '/home/ubuntu/flaskapp/img/'
-TRACK_FOLDER = '/home/ubuntu/flaskapp/track/'
-#IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
-#TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
+#IMG_FOLDER = '/home/ubuntu/flaskapp/img/'
+#TRACK_FOLDER = '/home/ubuntu/flaskapp/track/'
+IMG_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/img/'
+TRACK_FOLDER = '/Users/rebeccahong/Desktop/MegsArtist/MegsArtist/track/'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -95,6 +95,19 @@ class Track(db.Model):
         return '<Track %r>' % self.name
 
 
+#initiates Event table
+class Event(db.Model):
+    __tablename__ = 'event'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True, index=True)
+    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
+    address = db.Column(db.String(264), unique=False, index=True)
+    city = db.Column(db.String(64), unique=False, index=True)
+
+    def __repr__(self):
+        return '<Event %r>' % self.name
+
+
 class ArtistForm(Form):
     artistName = StringField('Artist Name*', validators=[Required()])
     # artistTags = SelectMultipleField(u'Tag', coerce=int, validators=[validators.NumberRange(message="Not a Valid Option")])
@@ -119,6 +132,17 @@ class TrackForm(Form):
 
     def reset(self):
         self.trackName.data = self.trackURL.data = ""
+
+
+class EventForm(Form):
+     artistName = StringField('Artist Name*', validators=[Required()])
+     eventName = StringField('Event Name*', validators=[Required()])
+     eventAddress = StringField('Event Address*', validators=[Required()])
+     eventCity = StringField('Event City*', validators=[Required()])
+
+     submit = SubmitField('Submit')
+     def reset(self):
+        self.eventName.data = self.eventAddress.data = self.eventCity.data= ""
 
 
 @app.errorhandler(404)
@@ -165,10 +189,11 @@ def getArtist(artistName):
             return render_template('artist.html', artistName="null")
     else:
         tracks = Track.query.filter_by(artist_id=artistObj.id).all()
+        events = Event.query.filter_by(artist_id=artistObj.id).all()
         return render_template('artist.html', artistName=artistObj.name,
                                artistDescription=artistObj.description,
                                artistImageURL=artistObj.image, tags=artistObj.tags,
-                               tracks=tracks
+                               tracks=tracks,events = events
                                )
 
 
@@ -261,11 +286,6 @@ def addArtist():
         print("doesn't exist")'''
 
 
-
-
-
-
-
 @app.route('/getTags/', methods=['GET'])
 def getTags():
     tags = [tag.name for tag in Tag.query.all()]
@@ -349,6 +369,32 @@ def addTrack(artistname):
         flash(message, "success")
     return render_template('addTrack.html', trackForm=trackForm)
 
+@app.route('/events/add/', defaults={'artistname': None}, methods=['GET', 'POST'])
+@app.route('/events/add/<artistname>', methods=['GET', 'POST'])
+def addEvent(artistname):
+    print(session['artistname'])
+    eventForm = EventForm(csrf_enabled=False)
+    if artistname is not None:
+        eventForm.artistName.data = artistname
+    if eventForm.validate_on_submit():
+        # user = Artist.query.filter_by(name=trackForm.artistName.data).first()
+        user = Artist.query.join(Tag.artist).filter_by(name=eventForm.artistName.data).first()
+        if user is None:
+            message = "Error: " + user.name + " Does Not Exists."
+            flash(message, "error")
+            return render_template('form.html', eventForm=eventForm)
+        else:
+            event = Event(
+                name=eventForm.eventName.data,
+                artist_id=user.id,
+                address = eventForm.eventAddress.data,
+                city = eventForm.eventCity.data
+            )
+            db.session.add(event)
+            db.session.commit
+        message = event.name + " Successfully Added to " + user.name + ".  <a href='/artists/" + user.name + "'>View Page</a>"
+        flash(message, "success")
+    return render_template('addEvent.html', eventForm=eventForm);
 
 if __name__ == '__main__':
     manager.run()

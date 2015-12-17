@@ -6,8 +6,9 @@
 {% block page_content %}
         <div class="page-header">
             <div class="row text-center form-tabs">
-            <div class="col-md-2 col-md-offset-4"><a id=form_link href="/artists/add/">Edit profile</a></div>
+            <div class="col-md-2 col-md-offset-3"><a id=form_link href="/artists/add/">Edit profile</a></div>
             <div class="active col-md-2"><a id=form_link href="/tracks/add/{{ trackForm.artistName.data }}">Upload music</a></div>
+            <div class="col-md-2"><a id=form_link href="/events/add/{{ trackForm.artistName.data }}">Add events</a></div>
         </div>
     </div>
         <div class="jumbotron">

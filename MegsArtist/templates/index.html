@@ -12,23 +12,13 @@
         <div class="landing-text">Recommend &amp; discover <strong>new music</strong></div>
     </div>
     <div class="row">
-            <h2 class="landing-text">Are you an
-            <button type="button" data-toggle="modal" data-target=".loginModal" class="btn">Artist
+            <h2 class="landing-text">
+            <button type="button" data-toggle="modal" data-target=".loginModal" class="btn-lg">Artist
             </button>
             or
-            <a href="/user/fan/" ><button type="button"  class="btn">Fan</button></a>
-            ?
+            <a href="/artists/" ><button type="button"  class="btn-lg">Fan</button></a>
             </h2>
         </div>
-    <div class="landing-text">
-        {% if session['artistname'] %}
-            <div>
-            <a class="landing-text" href="/user/{{session['artistname']}}"><h2 class="landing-text">Continue as <strong>{{session['artistname']}}</strong>?</h2></a>
-            </div>
-
-        {% endif %}
-
-    </div>
 
     <div class="loginModal modal fade" tabindex="-1" role="dialog" aria-labelledby="loginModal">
         <div class="modal-dialog modal-sm">

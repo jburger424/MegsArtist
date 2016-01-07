@@ -128,6 +128,7 @@ li.active:before {
     margin-top:1%;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 200;
+    color: white;
 }
 .form-tabs div{
     font-size: 25px;
@@ -156,13 +157,15 @@ li.active:before {
        -moz-border-radius: 8px;
             border-radius: 8px;
 }
-.btn{
+.btn-lg{
     background-color: #fefffd;
     border-color: #676867;
     color: grey;
+        border-color: black;
+    border-width: 1px;
 }
-.btn:hover{
-    background-color: rgb(160, 158, 160);
+.btn-lg:hover{
+    background-color: rgb(221, 221, 215);
 }
 .token-link{
     background-color: white;
@@ -215,4 +218,8 @@ body {
 
 h1,h2,h3,h4,h5,h6{
     font-weight: 300;
+}
+.navbar-form{
+    position: absolute;
+    right: 1%;
 }

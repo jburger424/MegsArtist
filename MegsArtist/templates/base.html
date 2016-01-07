@@ -28,33 +28,35 @@
 
             {% if current_user.is_authenticated %}
                 <ul class="nav navbar-nav navbar-left">
-                        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ current_user.artist.name }}<span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="/artists/{{ current_user.artist.name }}">View/Edit Profile</a></li>
-            <li><a href="/tracks/add/">Upload Music</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="/artists/">Local Artists</a></li>
-              <li role="separator" class="divider"></li>
-              <li><a href="/logout/">Log Out</a></li>
-          </ul>
-        </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">{{ current_user.artist.name }}<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/artists/{{ current_user.artist.name }}">View/Edit Profile</a></li>
+                            <li><a href="/tracks/add/">Upload Music</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/artists/">Local Artists</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/logout/">Log Out</a></li>
+                        </ul>
+                    </li>
                 </ul>
-                {% else %}
+            {% else %}
                 <ul class="nav navbar-nav navbar-left">
-                    Browsing as Fan
+                    <li data-toggle="tooltip" data-placement="bottom" title="Login as Artist, or Browse as Fan" class="row">
+                        <a class="navbar-link" href="/login/">Log In</a>
+                    </li>
                 </ul>
             {% endif %}
 
-            <ul class="nav navbar-nav navbar-right">
-<form class="navbar-form navbar-left" role="search">
-  <div class="form-group">
-    <input type="text" class="form-control" placeholder="Search">
-  </div>
-  <button type="submit" class="btn btn-default">Submit</button>
-</form>
+            <!--<ul class="nav navbar-nav navbar-right">-->
+            <form class="navbar-form navbar-right" role="search">
+                <div class="form-group">
+                    <input id="artistSearch" type="text" class="form-control" placeholder="Search Artists">
+                </div>
+            </form>
 
-            </ul>
+            <!-- </ul>-->
         </div><!-- /.navbar-collapse -->
     </nav>
 
@@ -70,10 +72,6 @@
         {% endfor %}
 
         {% block page_content %}{% endblock %}
-    </div>
-    <div id="base-footer" class="footer text-center">
-        <p>Site under construction. Copyright &copy; Jonathan Burger, Ruojun Hong, Lauren McGrath, Ithaca College, 2015</p>
-        <p><a href="mailto:rhong1@ithaca.edu">Email Ruo with suggestions: rhong1@ithaca.edu</a>
     </div>
 {% endblock %}
 

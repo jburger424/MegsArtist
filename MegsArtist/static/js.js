@@ -97,14 +97,16 @@ jQuery(function ($) { // First argument is the jQuery object
             $('.addTag').modal('show');
         }
     });
-    $('#artistInput').typeahead(null, {
-        //displayKey: 'num',
+    $('#artistSearch').typeahead(null, {
         source:substringMatcher(getArtists())
     });
 
 
     $('#artistTags,#trackTags').tokenfield({
-        typeahead: [null, {source: substringMatcher(getTags())}]
+        typeahead: [null,
+            {
+                source: substringMatcher(getTags())
+        }]
     });
 
 
@@ -126,10 +128,10 @@ jQuery(function ($) { // First argument is the jQuery object
 $('.modal').on('shown.bs.modal', function() {
   $(this).find('[autofocus]').focus();
 });
-$("input#artistInput").keypress(function(event) {
+$("input#artistSearch").keypress(function(event) {
     if (event.which == 13) {
         event.preventDefault();
-        window.location.href = "/user/"+$("input#artistInput").val();
+        window.location.href = "/user/"+$("input#artistSearch").val();
     }
 });
 function change(URL) {

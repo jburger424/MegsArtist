@@ -23,7 +23,7 @@ TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'hard to guess string'
+app.config['SECRET_KEY'] = 's-key'
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['IMG_FOLDER'] = IMG_FOLDER
@@ -233,7 +233,7 @@ def internal_server_error(e):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    if current_user.is_authenticated:
+    if current_user.is_authenticated and not current_user.is_anonymous:
         #return redirect("/artists/"+current_user.artist.name)
         client = app.test_client()
         response = client.get('/artists/'+current_user.artist.name, headers=list(request.headers))

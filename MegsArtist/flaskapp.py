@@ -2,16 +2,16 @@ import os
 import uuid
 from flask import Flask, render_template, send_from_directory, flash, json, Response, request, redirect, url_for, \
     session
-from flask.ext.script import Manager
-from flask.ext.bootstrap import Bootstrap
-from flask.ext.moment import Moment
-from flask.ext.wtf import Form
+from flask_script import Manager
+from flask_bootstrap import Bootstrap
+from flask_moment import Moment
+from flask_wtf import Form
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, validators
 from flask_wtf.file import FileField, FileAllowed,FileRequired
 from wtforms.validators import Required
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename, generate_password_hash, check_password_hash
-from flask.ext.login import LoginManager, UserMixin, AnonymousUserMixin, login_required, login_user, logout_user, current_user
+from flask_login import LoginManager, UserMixin, AnonymousUserMixin, login_required, login_user, logout_user, current_user
 
 IMG_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/img/'
 TRACK_FOLDER = '/Users/Jon/Google_Drive/Github/cs205/MegsArtist/MegsArtist/track/'
@@ -29,6 +29,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = \
 app.config['IMG_FOLDER'] = IMG_FOLDER
 app.config['TRACK_FOLDER'] = TRACK_FOLDER
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+
+#will be disabled by default in future
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 WTF_CSRF_SECRET_KEY = 'a random string'
 
 manager = Manager(app)

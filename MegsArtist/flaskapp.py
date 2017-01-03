@@ -157,7 +157,7 @@ def getArtist(artistName):
     # artistObj = Artist.query.filter_by(name=artistName).first()
     artistObj = Artist.query.join(Tag.artist).filter_by(name=artistName).first()
     if artistObj is None:
-        if session['usertype']=="artist":
+        if session['usertype'] == "artist":
             message = artistName + " doesn't exist. Tell us about yourself!"
             flash(message)
             return redirect('/artists/add/')
@@ -195,9 +195,8 @@ def uploaded_song(filename):
                                filename)
 
 
-
-#@app.route('/artists/add/', defaults={'artistname': None}, methods=['GET', 'POST'])
-#@app.route('/artists/add/<artistname>', methods=['GET', 'POST'])
+# @app.route('/artists/add/', defaults={'artistname': None}, methods=['GET', 'POST'])
+# @app.route('/artists/add/<artistname>', methods=['GET', 'POST'])
 @app.route('/artists/add/', methods=['GET', 'POST'])
 def addArtist():
     isNew = True
@@ -248,23 +247,6 @@ def addArtist():
             artistForm.artistDescription.data = artist.description
     return render_template('form.html', artistForm=artistForm)
 
-    '''if artist is not None: #if it already exists in database
-        isNew = False
-        artistForm.artistName.default = session['artistname']
-        tags = []
-        for tag in artist.tags:
-            tags.append(tag.name)
-        tags = ", ".join(tags)
-        artistForm.artistTags.default = tags
-        artistForm.artistDescription.default = artist.description
-    else:
-        print("doesn't exist")'''
-
-
-
-
-
-
 
 @app.route('/getTags/', methods=['GET'])
 def getTags():
@@ -311,13 +293,12 @@ def addTag():
 
 
 # add track
-@app.route('/tracks/add/', defaults={'artistname': None}, methods=['GET', 'POST'])
-@app.route('/tracks/add/<artistname>', methods=['GET', 'POST'])
-def addTrack(artistname):
+@app.route('/tracks/add/', methods=['GET', 'POST'])
+def addTrack():
     print(session['artistname'])
     trackForm = TrackForm(csrf_enabled=False)
-    if artistname is not None:
-        trackForm.artistName.data = artistname
+    if session['artistname'] is not None:
+        trackForm.artistName.data = session['artistname']
     trackTags = trackForm.trackTags.data
     if isinstance(trackTags, str):
         trackTags = trackTags.split(", ")

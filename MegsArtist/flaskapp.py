@@ -376,7 +376,8 @@ def addArtist():
     userArtist = current_user.artist
     if artistForm.validate_on_submit():
         tagsText = artistForm.artistTags.data
-        if isinstance(tagsText, str):
+        print(tagsText,type(tagsText))
+        if isinstance(tagsText, basestring):
             formTags = tagsText.split(", ")
 
         userArtist.description = artistForm.artistDescription.data
@@ -384,7 +385,7 @@ def addArtist():
             filename = secure_filename(str(uuid.uuid1())+artistForm.artistImage.data.filename)
             artistForm.artistImage.data.save(IMG_FOLDER + filename)
             userArtist.image = filename
-        if len(userArtist.image)==0:
+        if userArtist.image is None:
             userArtist.image = "no_profile.png"
         for tagName in formTags:
             tag = Tag.query.filter_by(name=tagName).first()

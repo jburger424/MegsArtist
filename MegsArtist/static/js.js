@@ -54,43 +54,6 @@ jQuery(function ($) { // First argument is the jQuery object
         return artists;
     };
 
-
-    /*$("button#addTag").on("click", function () {
-        var newTag = ($("#tagInput").val());
-        var artistName = $("input#artistName").val();
-        var data = {
-            newTag: newTag,
-            artistName: artistName
-        };
-
-        $.ajax({
-            type: 'POST',
-            url: window.location.href + 'tag/',
-            data: JSON.stringify(data),
-            dataType: 'json',
-            contentType: 'application/json; charset=utf-8',
-            success: function (msg) {
-                //if duplicate tag
-                if (msg.tag_id == -1) {
-                    $("#tag_error").remove();
-                    $('#tagInput').css({
-                        'border': '2px solid red'
-                    });
-                    $("<div class='row text-center' id='tag_error'>Error:<b>'" + newTag + "'</b> Already exists</div>").insertBefore(".addTag .row .col-md-12 .row");
-                }
-                else {
-                    $('#artistTags').append($('<option>', {
-                        value: msg.tag_id,
-                        text: data.newTag
-                    }));//TODO: insert where it should be in abc order
-                    $('#artistTags').val(msg.tag_id);
-                    $('.addTag').modal('hide');
-                }
-            }
-
-        })
-    });*/
-
 //will open addTag modal
     $('select').on('change', function () {
         if (this.value == -1) {
@@ -114,8 +77,6 @@ jQuery(function ($) { // First argument is the jQuery object
         var existingTokens = $(this).tokenfield('getTokens');
         $.each(existingTokens, function (index, token) {
 
-            /* if (token.value === event.attrs.value)
-             event.preventDefault();*/
         });
     });
 
@@ -131,7 +92,7 @@ $('.modal').on('shown.bs.modal', function() {
 $("input#artistSearch").keypress(function(event) {
     if (event.which == 13) {
         event.preventDefault();
-        window.location.href = "/user/"+$("input#artistSearch").val();
+        window.location.href = "/artists/"+$("input#artistSearch").val();
     }
 });
 function change(URL) {
@@ -164,25 +125,6 @@ function nextSong() {
     }
     change(next.attr("data-track-url"));
 }
-/*
- console.log("before init audio");
- var audio = $("#player");
- console.log("after init audio");
-
- $('ul#tracks li.list-group-item').click(function () {
- change($(this).attr("data-track-url"));
- });
-
-
- audio[0].addEventListener('ended', function (e) {
- nextSong();
- });
- $("#prev").click(function () {
- prevSong();
- });
- $("#next").click(function () {
- nextSong();
- });*/
 var audio;
 $(window).load(function () {
     if ($("ul#tracks").length > 0) {
@@ -208,16 +150,8 @@ $(window).load(function () {
         });
         console.log("length: " + $('ul#tracks li').length);
         var randomTrack = Math.floor((Math.random() * $('ul#tracks li').length) + 1);
-        //change($("ul li.list-group-item:nth-child(" + randomTrack + ")").attr("data-track-url"));
-        //just disabled for testing
+        change($("ul li.list-group-item:nth-child(" + randomTrack + ")").attr("data-track-url"));
     }
 
 });
-/*$( "ul#tracks" ).ready(function() {
- console.log("length: "+$('ul#tracks li').length);
- var randomTrack = Math.floor((Math.random() * $('ul#tracks li').length) + 1);
- change($("ul li.list-group-item:nth-child(" + randomTrack + ")").attr("data-track-url"));
- });*/
 
-
-//}

@@ -27,7 +27,7 @@
 
                                 </div>
                                 <div class="col-md-4">
-                                    {% if artistImageURL %}
+                                    {% if artistImageURL!="no_profile.png" %}
                                         <img src="/uploadedImg/{{ artistImageURL }}" class="artist-image img-circle img-responsive">
                                     {% endif %}
                                 </div>

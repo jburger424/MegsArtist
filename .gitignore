@@ -11,9 +11,6 @@ build
 _mailinglist
 .tox
 .cache/
-.idea/
-
-# Coverage reports
 htmlcov
 .coverage
 .coverage.*

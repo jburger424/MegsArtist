@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}MegsArtist{% endblock %}
+
+{% block page_content %}
+
+    <div class="page-header">
+ <div class="jumbotron">
+     <h2 class="text-center">Log In</h2>
+<form method="POST" enctype="multipart/form-data">
+    {{ wtf.quick_form(form)}}
+</form>
+     <a style="width:100%;"href="/register/" class="btn btn-primary" role="button">Create an Artist Account</a>
+    </div>
+{% endblock %}

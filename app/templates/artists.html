@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}MegsArtist{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <div class="row text-center form-tabs">
+            <div class="active col-md-2 col-md-offset-4"><a id="form_link" href="/artists/">Artists</a></div>
+            <div class="col-md-2"><a id="form_link" href="/tags/">Tags</a></div>
+        </div>
+    </div>
+    <div class="jumbotron">
+    <div class="row">
+
+            {% for artistName,artistImage in artistNamesImages %}
+                <div class="col-md-4">
+                    {% if current_user.is_authenticated and current_user.artist.name==artistName %}
+                        <div class="panel panel-default artist-highlight">
+                    {% else %}
+                        <div class="panel panel-default">
+                            {% endif %}
+                    <div class="panel-body">
+                        <div class="col-md-8">
+                            <a id="artist-link" href="{{ artistName }}">
+                                {{ artistName }}
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <img class="img-responsive img-circle" src="/uploadedImg/{{ artistImage }}">
+                        </div>
+                    </div>
+                </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+    </div>
+
+
+{% endblock %}

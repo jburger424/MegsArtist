@@ -13,6 +13,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename, generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, AnonymousUserMixin, login_required, login_user, logout_user, current_user
 
+#TODO: fix mobile navbar
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 

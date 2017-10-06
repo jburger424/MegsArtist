@@ -6,8 +6,6 @@ Developed as mock artist backend from [MegsRadio.fm](http://www.megsradio.fm/).
 
 Created by Jonathan Burger, Ruojun Hong, Lauren McGrath. Original Design by Adam Linden.
 
-### [Demo](http://megsartist.ruojunhong.io/)
-
 ## Getting Started
 ### Requirements (Included in virtual enviroment)
 - Python 2.7
